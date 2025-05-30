@@ -1,0 +1,44 @@
+SOVIEL ZEIT
+
+# Habe es erst mit Python Versucht
+# Habe es dann mit Java versucht
+# Habe es dann Mit C++ versucht (erste funktionale sache) hat allerdings ind er schule nicht gefuntzt
+
+# Habe es wieder in Java versucht (ohne erfolge)
+
+# Habe Python in jave eingefügt
+
+# Problem 1 Packages müssen überall installiert sein
+# Eigenes Pythong genutzt in resources WinPython
+# Problem wnpython kann aus resourcen nicht gelesen werden muss erst ausm programm extrahiert werden
+# Workaround programmiert
+
+# Verbindugn ausprobiert erstmal top
+
+# bemerkt das wenn ich daten anfordere manhcmal keine zurück kommen
+# Bei einem nur sende (nur befehle wie fwd keine request wie color) script das immer rdy zurück antwortet merkt man das nicht
+# Es kommt immer der return vom request davor nicht der aktuelle
+
+# 2 Tage lang rumprobiert 10000 mal das Hub programm udn mein receiver programm geändert
+# Mich darauf geeinigt das es am Hub lag
+# Mich doch darauf geeinigt das es am receiver script lag
+# Mich doch darauf geeinigt das es doch am Hub liegt
+# Hub Script multithreaded versucht weil ich dachte der buffer out prozess wird durch dei schleife blockiert , hat nichst gebracht
+# Noch 3 verscuhe multithreaded
+# Sehr minimalistisch probiert ganz normal wie am anfang aber ohne pubdeviced (motoren sensoren)
+# Erste erfolgreiche verbindugnen aber immernoch datenverlust
+# Nochmal 20 mal das script abgeändert
+# Sehr minimalistisches design mit nur einem output writer (manchmal imemrnoch datenverlust)
+# Datenverlust in kauf genommen und Fehlerkorrektur programmiert
+# Erste perfekter Programm ablauf
+
+# Mich störte das ich das programm jedes mal selbst starten muss
+
+# zich Workarounds ausprobiert (dafür verschiedenen andere python packages isntalliert)
+# mit pybrickdev probiert aber die repl code variante scheint kein support mehr zu haben
+# Festgestellt
+ - 0x01 Kennung für Konsolen ouput des Programms auf dem Hub
+ - 0x01 Auch start command zum starten des hub programms über den gatt service
+
+# Hub Programm selber hochladen geht noch nicht lass ich jetzt aber weg das stört nicht
+# Bisher ca. 25 Stunden zeitaufwand auf ca 5 Tage verteilt (5 st) am tag

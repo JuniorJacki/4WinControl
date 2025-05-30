@@ -9,9 +9,12 @@ Requires Pybricks firmware >= 3.3.0.
 
 import asyncio
 import sys
+import os
 from contextlib import suppress
 from bleak import BleakScanner, BleakClient
 import time
+import struct
+
 
 PYBRICKS_COMMAND_EVENT_CHAR_UUID = "c5f50002-8280-46da-89f4-6d8051e4aeef"
 HUB_NAME = "Hub 10"
@@ -58,9 +61,22 @@ async def main():
             await asyncio.sleep(0)
 
 
+        async def send_command(command_id, payload=b""):
+            """Send a command to the hub."""
+            data = bytes([command_id]) + payload
+            print(f"Sent at {time.time()}: Command ID {command_id}, Payload {payload}", flush=True)
+            await client.write_gatt_char(
+                PYBRICKS_COMMAND_EVENT_CHAR_UUID,
+                data,
+                response=True
+            )
+            await asyncio.sleep(0)
+
+        await send_command(0x01)
         print("crdy",flush=True)
 
-        #print("Ready for commands. Send 'fwd', 'rev', or 'bye' via stdin.", flush=True)
+
+    #print("Ready for commands. Send 'fwd', 'rev', or 'bye' via stdin.", flush=True)
 
         # Read commands from stdin
         while True:

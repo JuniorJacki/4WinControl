@@ -81,11 +81,16 @@ public class Connection {
                     }
 
                     if (line.equals("crdy") && !initiated) {
-                        System.out.println("Start The Program Now");
-                        JOptionPane.showConfirmDialog(null,"Hast du das Programm auf dem Hub gestartet?","Bitte bestätige",JOptionPane.YES_NO_OPTION);
-                        writer.get().write("ini\n");
-                        writer.get().flush();
-                        System.out.println("Send: ini");
+                        new Thread(() -> {
+                            try {
+                                Thread.sleep(5000);
+                                writer.get().write("ini\n");
+                                writer.get().flush();
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                            System.out.println("Send: ini");
+                        }).start();
                     }
 
                     if (line.equals("cnf") || line.equals("hwd")) {
