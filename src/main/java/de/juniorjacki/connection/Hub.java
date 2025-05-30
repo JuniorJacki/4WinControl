@@ -8,11 +8,11 @@ public class Hub {
     private Process hubConnection = null;
 
     /**
-     * Erstelle ein neues Hub Objekt
-     * @param name Netzwerk Name des Hubs
+     * Erstelle ein neues Hubobjekt
+     * @param hubName Netzwerk Name des Hubs
      */
     public Hub(String hubName) {
-        hubName = name;
+        this.hubName = hubName;
 
     }
 

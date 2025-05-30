@@ -1,0 +1,35 @@
+Starting PybricksController at Thu May 29 13:43:05 CEST 2025
+Resource URL for connector.py: jar:file:/D:/B%c3%bcro/Schule/MPG/Q1/IFPK/4WinLogic/out/artifacts/4WinLogic_jar/4WinLogic.jar!/connector.py
+Temporäres Skript erstellt: C:\Users\JUNIOR~1\AppData\Local\Temp\pybricks_comms12011744044720611849.py
+Resource URL for python.exe: jar:file:/D:/B%c3%bcro/Schule/MPG/Q1/IFPK/4WinLogic/out/artifacts/4WinLogic_jar/4WinLogic.jar!/python/python/python.exe
+Temporäres Python-Verzeichnis: C:\Users\JUNIOR~1\AppData\Local\Temp\python_env2317135916330592785
+Python-Interpreter: C:\Users\JUNIOR~1\AppData\Local\Temp\python_env2317135916330592785\python\python.exe
+Arbeitsverzeichnis: C:\Users\JUNIOR~1\AppData\Local\Temp\python_env2317135916330592785\python
+Ausführen des Befehls: C:\Users\JUNIOR~1\AppData\Local\Temp\python_env2317135916330592785\python\python.exe C:\Users\JUNIOR~1\AppData\Local\Temp\pybricks_comms12011744044720611849.py
+Python-Prozess gestartet.
+....Python: Ready for commands. Send 'fwd', 'rev', or 'bye' via stdin.
+...Python: Sent: fwd
+Python: .
+.Python: Sent: rev
+Python: .
+..Python: Sent: fwd
+Python: .
+done.
+Python: Sent: rev
+Python: .
+Python: Sent: fwd
+Python: .
+Python: Sent: rev
+Python: .
+Python: Sent: fwd
+Python: .
+Python: Sent: rev
+Python: .
+Python: Sent: fwd
+Python: .
+Python: Sent: rev
+Python: .
+Python: Sent: bye
+Python-Prozess läuft noch, erzwinge Beendigung.
+Python output stream closed or process terminated.
+Python-Skript beendet mit Exit-Code: 1
