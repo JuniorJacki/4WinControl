@@ -11,32 +11,16 @@ import java.net.URL;
 import java.util.Optional;
 
 public class Main {
-    static Connection connection;
+    public static Connection connection;
     public static void main(String[] args) throws InterruptedException {
+        JOptionPane.showMessageDialog(null, "hi","Error initializing Log File",JOptionPane.ERROR_MESSAGE);
         if (!isRunningInIde()) initiateLogFile(); // Activate Log File for GUI only User
         Runtime.getRuntime().addShutdownHook(new Thread(Main::shutDown)); // Set Hook for Application Quit
-
-        connection = new Connection("Hub 10","c5f50002-8280-46da-89f4-6d8051e4aeef", () -> {System.exit(5);});
-        if (connection.init()) System.out.println("Connection has been initialized");
-        Thread.sleep(5000);
-        connection.sendCommand("fwd");
-        connection.sendCommand("rev");
-        connection.sendCommand("sto");
-        for (int i = 0; i < 100; i++) {
-            Optional<String> colRequest = connection.sendRequest("col");
-            if (colRequest.isPresent()) {
-                System.out.println("Color: " + colRequest.get());
-            } else System.out.println("No Result for Color");
-            Optional<String> request = connection.sendRequest("chl");
-            if (request.isPresent()) {
-                System.out.println("CHL: " + request.get());
-            } else System.out.println("No Result for CHL");
-        }
-        connection.sendCommand("bye");
-
+        GuiController.Instance.init();
     }
 
-    private static void shutDown() {
+    public static void shutDown() {
+        connection.sendCommand("bye");
         connection.shutdown();
     }
 
