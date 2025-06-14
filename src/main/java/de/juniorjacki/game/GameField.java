@@ -20,15 +20,16 @@ public class GameField {
     AtomicReference<HashMap<Byte, Byte>> row5 = new AtomicReference<>(new HashMap<Byte, Byte>());
     AtomicReference<HashMap<Byte, Byte>> row6 = new AtomicReference<>(new HashMap<Byte, Byte>());
 
-
     /**
-     * Gets Value of Field of the GameField
-     * @param rowNum Row Number Counted from Driving Side Left to Right (Starting from Scanner reflektor)
-     * @param columnNum Column Counted Downwards (0 is the Top) , 5 is the Column at the Bottom
-     * @return Optional of Field Value or Optional.empty()
+     * Object for selecting Field on the GameField
+     * @param row Row Counted from Driving Side Left to Right (Starting from Scanner reflektor)
+     * @param column Column Counted Downwards (0 is the Top) , 5 is the Column at the Bottom
      */
-    public Optional<Byte> getFieldValue(byte rowNum, byte columnNum) {
-        AtomicReference<HashMap<Byte, Byte>> row = switch (rowNum) {
+    public record FieldPosition(byte row,byte column) {}
+
+
+    private AtomicReference<HashMap<Byte, Byte>> getRowReference(byte rowNum) {
+        return switch (rowNum) {
             case 0 -> row0;
             case 1 -> row1;
             case 2 -> row2;
@@ -38,8 +39,61 @@ public class GameField {
             case 6 -> row6;
             default -> null;
         };
-        if (row == null) return Optional.empty();
-        return Optional.of(row.get().get(columnNum));
+    }
+
+    /**
+     * Gets all Values saved for specified Row
+     * @param rowNum Row Number Counted from Driving Side Left to Right (Starting from Scanner reflektor)
+     * @return The Row or Empty Optional
+     */
+    public Optional<HashMap<Byte, Byte>> getRow(byte rowNum) {
+        return Optional.ofNullable(getRowReference(rowNum)).map(AtomicReference::get);
+    }
+
+    /**
+     * Sets the new Color Value of the specified field
+     * @param newValue New Color Value
+     */
+    public void updateField(FieldPosition position, byte newValue ){
+        updateField(position.row(),position.column(),newValue);
+    }
+
+    /**
+     * Sets the new Color Value of the specified field
+     * @param rowNum Row Number Counted from Driving Side Left to Right (Starting from Scanner reflektor)
+     * @param columnNum Column Counted Downwards (0 is the Top) , 5 is the Column at the Bottom
+     * @param newValue New Color Value
+     */
+    public void updateField(byte rowNum, byte columnNum, byte newValue ){
+        Optional.ofNullable(getRowReference(rowNum)).ifPresent(rowReference -> {
+            rowReference.get().put(columnNum,newValue);
+        });
+    }
+
+    /**
+     * Gets Value of Field of the GameField
+     * @return Optional of Field Value or Optional.empty()
+     */
+    public Optional<Byte> getFieldValue(FieldPosition position) {
+        return getFieldValue(position.row(),position.column());
+    }
+
+    /**
+     * Gets Value of Field of the GameField
+     * @param rowNum Row Number Counted from Driving Side Left to Right (Starting from Scanner reflektor)
+     * @param columnNum Column Counted Downwards (0 is the Top) , 5 is the Column at the Bottom
+     * @return Optional of Field Value or Optional.empty()
+     */
+    public Optional<Byte> getFieldValue(byte rowNum, byte columnNum) {
+        return Optional.ofNullable(getRowReference(rowNum)).map(rowReference -> rowReference.get().get(columnNum));
+    }
+
+    /**
+     * Gets Interpreted Color Value of Field of the GameField
+     * @return Optional of Color Value or Air for Empty Fields
+     */
+    public ICSValue getFieldICSValue(FieldPosition position) {
+        return getFieldICSValue(position.row(),position.column());
     }
 
     /**
@@ -48,8 +102,8 @@ public class GameField {
      * @param columnNum Column Counted Downwards (0 is the Top) , 5 is the Column at the Bottom
      * @return Optional of Color Value or Air for Empty Fields
      */
-    public Optional<ICSValue> getFieldICSValue(byte rowNum, byte columnNum) {
-        return getFieldValue(rowNum, columnNum).map(ICSValue::getColorByValue).or(() -> Optional.of(ICSValue.AIR));
+    public ICSValue getFieldICSValue(byte rowNum, byte columnNum) {
+        return getFieldValue(rowNum, columnNum).map(ICSValue::getColorByValue).or(() -> Optional.of(ICSValue.AIR)).get();
     }
 
     /**
