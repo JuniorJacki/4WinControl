@@ -24,7 +24,7 @@ public class GameControl {
 
         @Override
         public String toString() {
-            return "Position: " + position.row()+","+position.column() + " TargetWinLine Direction: " + targetWinLine.direction() + " NeededMovesToWinAfter: " + neededMovesToWinAfter;
+            return "Position: " + position.row()+" , "+position.column() + " TargetWinLine Direction: " + targetWinLine.direction() + " NeededMovesToWinAfter: " + neededMovesToWinAfter;
         }
     }
 
@@ -151,12 +151,76 @@ public class GameControl {
                 .updateField(new GameField.FieldPosition((byte) 3, (byte) 4), (byte) 80)
                 ;
 
+        GameField gameField2 = new GameField()
+                .updateField(new GameField.FieldPosition((byte) 0, (byte) 5), (byte) 42) // Rot
+                .updateField(new GameField.FieldPosition((byte) 0, (byte) 4), (byte) 80) // Gelb
+                .updateField(new GameField.FieldPosition((byte) 1, (byte) 5), (byte) 80) // Gelb
+                .updateField(new GameField.FieldPosition((byte) 2, (byte) 5), (byte) 42) // Rot
+                .updateField(new GameField.FieldPosition((byte) 2, (byte) 4), (byte) 80) // Gelb
+                .updateField(new GameField.FieldPosition((byte) 3, (byte) 5), (byte) 42) // Rot
+                .updateField(new GameField.FieldPosition((byte) 4, (byte) 5), (byte) 80) // Gelb
+                .updateField(new GameField.FieldPosition((byte) 4, (byte) 4), (byte) 42); // Rot
+
+        /*
+                    0: . . . . . . .
+                    1: . . . . . . .
+                    2: . . . . . . .
+                    3: . . . . . . .
+                    4: Y . Y . R . .
+                    5: R Y R R Y Y .
+                       0 1 2 3 4 5 6
+         */
+
+
+        GameField gameField3 = new GameField()
+                .updateField(new GameField.FieldPosition((byte) 2, (byte) 5), (byte) 80) // Gelb
+                .updateField(new GameField.FieldPosition((byte) 2, (byte) 4), (byte) 80) // Gelb
+                .updateField(new GameField.FieldPosition((byte) 2, (byte) 3), (byte) 80) // Gelb
+                .updateField(new GameField.FieldPosition((byte) 3, (byte) 5), (byte) 42) // Rot
+                .updateField(new GameField.FieldPosition((byte) 3, (byte) 4), (byte) 42) // Rot
+                .updateField(new GameField.FieldPosition((byte) 4, (byte) 5), (byte) 80) // Gelb
+                .updateField(new GameField.FieldPosition((byte) 4, (byte) 4), (byte) 42) // Rot
+                .updateField(new GameField.FieldPosition((byte) 5, (byte) 5), (byte) 42); // Rot
+
+        /*
+                    0: . . . . . . .
+                    1: . . . . . . .
+                    2: . . . . . . .
+                    3: . . Y . . . .
+                    4: . . Y . R . .
+                    5: . . Y R Y R .
+                       0 1 2 3 4 5 6
+         */
+
+
+        GameField gameField4 = new GameField()
+                .updateField(new GameField.FieldPosition((byte) 1, (byte) 5), (byte) 42) // Rot
+                .updateField(new GameField.FieldPosition((byte) 2, (byte) 5), (byte) 80) // Gelb
+                .updateField(new GameField.FieldPosition((byte) 2, (byte) 4), (byte) 42) // Rot
+                .updateField(new GameField.FieldPosition((byte) 3, (byte) 5), (byte) 80) // Gelb
+                .updateField(new GameField.FieldPosition((byte) 3, (byte) 4), (byte) 80) // Gelb
+                .updateField(new GameField.FieldPosition((byte) 3, (byte) 3), (byte) 42) // Rot
+                .updateField(new GameField.FieldPosition((byte) 4, (byte) 5), (byte) 42) // Rot
+                .updateField(new GameField.FieldPosition((byte) 4, (byte) 4), (byte) 80) // Gelb
+                .updateField(new GameField.FieldPosition((byte) 4, (byte) 3), (byte) 80); // Gelb
+
+        /*
+                    0: . . . . . . .
+                    1: . . . . . . .
+                    2: . . . . . . .
+                    3: . . . R Y . .
+                    4: . . R Y Y . .
+                    5: . R Y Y R Y .
+                       0 1 2 3 4 5 6
+         */
 
         System.out.println("Color Fields Player " + control.getFieldsByColor(gameField,control.playerColor).size());
         System.out.println("Color Fields Bot " + control.getFieldsByColor(gameField,control.botColor).size());
 
         //System.out.println(control.getCurrentPossibleWinLines(gameField,control.botColor));
-        System.out.println(control.getPossibleSmartMove(gameField).toString());
+        long time = System.currentTimeMillis();
+        System.out.println(control.getPossibleSmartMove(gameField4).toString());
+        System.out.println("Calculation Time:" + (System.currentTimeMillis() - time));
     }
 
 
