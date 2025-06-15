@@ -64,7 +64,7 @@ async def main():
         async def send_command(command_id, payload=b""):
             """Send a command to the hub."""
             data = bytes([command_id]) + payload
-            print(f"Sent at {time.time()}: Command ID {command_id}, Payload {payload}", flush=True)
+            #print(f"Sent at {time.time()}: Command ID {command_id}, Payload {payload}", flush=True)
             await client.write_gatt_char(
                 PYBRICKS_COMMAND_EVENT_CHAR_UUID,
                 data,
@@ -73,16 +73,16 @@ async def main():
             await asyncio.sleep(0)
 
         await send_command(0x01)
-        print("crdy",flush=True)
-
-
-    #print("Ready for commands. Send 'fwd', 'rev', or 'bye' via stdin.", flush=True)
+        print(f"crdy",flush=True)
 
         # Read commands from stdin
         while True:
             command = sys.stdin.readline().strip()
             if not command:  # Handle EOF or empty input
                 continue
+            if command == "bye":
+                await send(command)
+                break
             await send(command)
 
 if __name__ == "__main__":

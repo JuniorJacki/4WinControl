@@ -1,8 +1,11 @@
 package de.juniorjacki.gui;
 
 import de.juniorjacki.connection.Connection;
+import de.juniorjacki.connection.Hub;
+import de.juniorjacki.connection.HubController;
 
 import java.util.Optional;
+import java.util.Random;
 
 import static de.juniorjacki.Main.connection;
 import static de.juniorjacki.Main.shutDown;
@@ -234,46 +237,21 @@ public class GuiController extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:
-        try {
-            if (connection == null) {
-                connection = new Connection("Hub 10","c5f50002-8280-46da-89f4-6d8051e4aeef", () -> {System.exit(5);});
-                if (connection.init()) System.out.println("Connection has been initialized");
 
-                Thread.sleep(5000);
-                connection.sendCommand("bep");
-            }
-
-            new Thread(() -> {
-
-                connection.sendCommand("fwd");
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                connection.sendCommand("rev");
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                connection.sendCommand("sto");
-                for (int i = 0; i < 1; i++) {
-                    Optional<String> colRequest = connection.sendRequest("col");
-                    if (colRequest.isPresent()) {
-                        System.out.println("Color: " + colRequest.get());
-                    } else System.out.println("No Result for Color");
-                    Optional<String> request = connection.sendRequest("chl");
-                    if (request.isPresent()) {
-                        System.out.println("CHL: " + request.get());
-                    } else System.out.println("No Result for CHL");
-                }
-            }
-            ).start();
-
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        if (!HubController.Instance.isConnected("Hub 10")) {
+            if (!HubController.Instance.connect("Hub 10")) return;
         }
+
+        new Thread(() -> {
+            Hub hub = HubController.Instance.getHub("Hub 10");
+            if (hub != null) {
+                System.out.println("New Command");
+                hub.moveToRow((byte) new Random().nextInt(0,6));
+            }
+        }
+        ).start();
+
+
     }
     // Variables declaration - do not modify
     private javax.swing.JButton jButton1;

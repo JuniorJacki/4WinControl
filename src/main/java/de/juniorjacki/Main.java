@@ -1,6 +1,7 @@
 package de.juniorjacki;
 
 import de.juniorjacki.connection.Connection;
+import de.juniorjacki.connection.HubController;
 import de.juniorjacki.gui.GuiController;
 
 import javax.swing.*;
@@ -13,15 +14,13 @@ import java.util.Optional;
 public class Main {
     public static Connection connection;
     public static void main(String[] args) throws InterruptedException {
-        JOptionPane.showMessageDialog(null, "hi","Error initializing Log File",JOptionPane.ERROR_MESSAGE);
         if (!isRunningInIde()) initiateLogFile(); // Activate Log File for GUI only User
         Runtime.getRuntime().addShutdownHook(new Thread(Main::shutDown)); // Set Hook for Application Quit
         GuiController.Instance.init();
     }
 
     public static void shutDown() {
-        connection.sendCommand("bye");
-        connection.shutdown();
+        HubController.Instance.disconnectAllHubs();
     }
 
 

@@ -6,8 +6,8 @@ from pybricks.hubs import InventorHub
 from pybricks.parameters import Stop
 
 # Standard MicroPython modules
-import usys
-
+from usys import stdin, stdout
+from uselect import poll
 
 # Define Controls
 
@@ -43,9 +43,9 @@ def throw():
     smotor.run_time(150,1000,Stop.BRAKE,True)
 
 def scanField(index):
-    sradmotor.run_angle(-800,index*68,Stop.BRAKE,wait=True)
+    sradmotor.run_angle(-500,index*65,Stop.BRAKE,wait=True)
     col = csens.hsv().v
-    sradmotor.run_angle(800,index*71,Stop.BRAKE,wait=True)
+    sradmotor.run_angle(500,index*69,Stop.BRAKE,wait=True)
     return col
 
 
@@ -62,18 +62,14 @@ def fahrzu(row,ff):
     dc = 0
     while True:
         distance = usens.distance()
-
-        if row == 6 and distance > 260 and load < 350:
-            movebrake()
-            break
         load = motor1.load() + motor.load()
         if load > 0:
             load = 0
         speed = fullSpeed - 30 - ((30/210)*load)
-        #print("R:",row,wanted,"±",ff,":",speed ,":",load,":"," -> ",distance)
+        print("R:",row,wanted,"±",ff,":",speed ,":",load,":"," -> ",distance)
 
         if (distance -ff) < wanted and (distance +ff) > wanted:
-            #print(wanted,":",distance)
+            print(wanted,":",distance)
             movebrake()
             break
         if distance == 2000:
@@ -113,8 +109,19 @@ def checkAusrichtung():
 ## Reset to Standard Position
 checkAusrichtung()
 
+
+keyboard = poll()
+keyboard.register(stdin)
+
+context = b"pss" # Programm Successfully Started
+
 while True:
-    cmd = usys.stdin.buffer.read(3)
+    stdout.buffer.write(b"rdy:" + context)
+    context = ""
+    while not keyboard.poll(0):
+        wait(10)
+
+    cmd = stdin.buffer.read(3)
     if cmd == b"ini":
         context = b"ins:"
     #### Color Sensor Read Commands
@@ -131,25 +138,25 @@ while True:
     elif cmd == b"co5":
         context = b"co5:" + str(scanField(5))
     #### Row Move Commands
-    elif cmd == b"ro0":
+    elif cmd == b"ro0:":
         context = b"ro0:"
         fahrzu(0,1)
-    elif cmd == b"ro1":
+    elif cmd == b"ro1:":
         context = b"ro1:"
         fahrzu(1,1)
-    elif cmd == b"ro2":
+    elif cmd == b"ro2:":
         context = b"ro2:"
         fahrzu(2,1)
-    elif cmd == b"ro3":
+    elif cmd == b"ro3:":
         context = b"ro3:"
         fahrzu(3,1)
-    elif cmd == b"ro4":
+    elif cmd == b"ro4:":
         context = b"ro4:"
         fahrzu(4,1)
-    elif cmd == b"ro5":
+    elif cmd == b"ro5:":
         context = b"ro5:"
         fahrzu(5,1)
-    elif cmd == b"ro6":
+    elif cmd == b"ro6:":
         context = b"ro6:"
         fahrzu(6,1)
     #### Throw Commands
@@ -165,11 +172,5 @@ while True:
         break
     else:
         context = cmd
-        continue
-    usys.stdout.buffer.write(b"ret:" + context)
-    wait(100)
-    usys.stdout.flush()
-    usys.stdout.buffer.write(b"rdy")
-
 
 

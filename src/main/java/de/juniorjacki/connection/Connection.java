@@ -6,7 +6,9 @@ import javax.swing.*;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -30,7 +32,7 @@ public class Connection {
 
     public Connection(String deviceName, String serviceUUID,Runnable onShutdown) {
         this.deviceName = deviceName;
-        this.serviceUUID = serviceUUID;
+        this.serviceUUID = serviceUUID != null ? serviceUUID : "c5f50002-8280-46da-89f4-6d8051e4aeef";
         this.onShutdown = onShutdown;
         queuedRequests.set(new LinkedList<>());
         queuedResults.set(new LinkedList<>());
@@ -51,73 +53,139 @@ public class Connection {
             }
             writer.set(new BufferedWriter(new OutputStreamWriter(connectionProcess.get().getOutputStream())));
             reader.set(new BufferedReader(new InputStreamReader(connectionProcess.get().getInputStream())));
-            startListener();
-            startSender();
-            return true;
 
+            CompletableFuture<Boolean> waitingSequence = new CompletableFuture<Boolean>();
+            startingSequence(waitingSequence);
+            try {
+                if (waitingSequence.get(20000,TimeUnit.MILLISECONDS)) {
+                    startListener();
+                    readyForRequest.set(true);
+                    startSender();
+                    return true;
+                }
+            } catch (Exception ignored) {}
+            shutdown();
+            return false;
         } else JOptionPane.showMessageDialog(null,"Could not use Python Env","Error",JOptionPane.ERROR_MESSAGE);
         return false;
     }
 
+    private void startingSequence(CompletableFuture<Boolean> success) {
+        try {
+            if (!waitForResult(reader.get(),5000).isPresent()) {
+                success.complete(false);
+                return;
+            }
+            Thread.sleep(2000);
+            writer.get().write("ini"+"\n");
+            writer.get().flush();
+            Thread.sleep(1000);
+            writer.get().write("ini"+"\n");
+            writer.get().flush();
+            Thread.sleep(1000);
+            waitForResult(reader.get(),5000).ifPresentOrElse(result -> {
+                System.out.println("Received Something: " + result);
+                success.complete(result.equals("ret:ins:"));
+            },() -> {
+                System.out.println("Did not receive anything!");
+                success.complete(false);
+            });
 
+        } catch (Exception exc) {
+            exc.printStackTrace();
+
+        }
+
+    }
+
+    private Optional<String> waitForResult(BufferedReader reader,long timeout) throws IOException, InterruptedException {
+        long startTime = System.currentTimeMillis();
+        while ((System.currentTimeMillis() - startTime) < timeout) {
+            if (reader.ready()) {
+                String line = reader.readLine();
+                System.out.println("ente "+line);
+                if (line != null) {
+                    return Optional.ofNullable(line);
+                }
+            }
+
+            Thread.sleep(20); // Small sleep to avoid busy-waiting
+
+        }
+        return Optional.empty();
+    }
+
+
+    public Thread listenerthread = new Thread(() -> {
+        try {
+            String line;
+            while (isAlive() && (line = reader.get().readLine()) != null) {
+                System.out.println("HUB: " + line);
+                if (line.equals("cnf") || line.equals("hwd")) {
+                    readyForRequest.set(false);
+                    disconnected();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally { // RESTART if Needed
+            if (isAlive()) startListener();
+        }
+    });
 
     private void startListener() {
-        new Thread(() -> {
-            try {
-                String line;
-                boolean initiated = false;
-                while (isAlive() && (line = reader.get().readLine()) != null) {
-                    System.out.println("HUB: " + line);
+        listenerthread.start();
+    }
 
-                    if (line.contains("rdy") && initiated) {
-                        readyForRequest.set(true);
-                        line = line.replace("rdy:", "");
-                    }
-
-                    if (line.contains("ins")) {
-                        initiated = true;
-                        readyForRequest.set(true);
-                       // startSender();
-                    }
-
-                    if (line.equals("crdy") && !initiated) {
-                        new Thread(() -> {
-                            try {
-                                Thread.sleep(5000);
-                                writer.get().write("ini\n");
-                                writer.get().flush();
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                            System.out.println("Send: ini");
-                        }).start();
-                    }
-
-                    if (line.equals("cnf") || line.equals("hwd")) {
-                        readyForRequest.set(false);
-                        disconnected();
-                    }
+    private void interuptListerner() {
+        listenerthread.interrupt();
+    }
 
 
-                    AtomicReference<String[]> finalLineSplit = new AtomicReference<>(line.split(":"));
-                    AtomicReference<String> finalLine = new AtomicReference<>(line);
-                    queuedResults.get().stream().filter(queuedResult -> queuedResult.identifier().equals(finalLineSplit.get()[0])).toList().forEach(queuedResult -> {
-                        queuedResults.get().remove(queuedResult);
-                        queuedResult.waiter.complete(finalLine.get().replace(finalLineSplit.get()[0]+":",""));
-                    });
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally { // RESTART if Needed
-                if (isAlive()) startListener();
-            }
-        }).start();
+    public void disconnect() {
+        sendCommand("bye");
     }
 
     private void disconnected() {
         System.out.println("Hub Disconnected");
-        connectionProcess.get().destroy();
-        onShutdown.run();
+        shutdown();
+    }
+
+
+    private List<String> waitForResults(BufferedReader reader,long time) throws IOException, InterruptedException {
+        List<String> result = new ArrayList<>();
+        long startTime = System.currentTimeMillis();
+        while ((System.currentTimeMillis() - startTime) < time) {
+            System.out.println("hi");
+            if (reader.ready()) {
+                System.out.println("want to read");
+                String line = reader.readLine();
+                System.out.println("read");
+                if (line != null) {
+                    result.add(line);
+                }
+            }
+            Thread.sleep(50); // Small sleep to avoid busy-waiting
+            System.out.println("BUSY");
+        }
+        return result;
+    }
+
+    private List<String> waitForResults(BufferedReader reader,String keyCode,long time) throws IOException, InterruptedException {
+        List<String> result = new ArrayList<>();
+        long startTime = System.currentTimeMillis();
+        while ((System.currentTimeMillis() - startTime) > time) {
+            if (reader.ready()) {
+                String line = reader.readLine();
+                if (line != null) {
+                    result.add(line);
+                    if (line.contains(keyCode)) {break;}
+                }
+            }
+            Thread.sleep(20); // Small sleep to avoid busy-waiting
+            System.out.println("BUSY W");
+        }
+        return result;
     }
 
     private void startSender() {
@@ -127,36 +195,50 @@ public class Connection {
                    if (readyForRequest.get()) {
                         QueuedRequest request = queuedRequests.get().poll() ;
                         if (request != null) {
-                            readyForRequest.set(false);
+                            interuptListerner();
                             try {
-                                QueuedResult checkResult = setResultHook(request.identifier);
-
                                 writer.get().write(request.query+"\n");
                                 writer.get().flush();
-
-
-                                try {
-                                    checkResult.waiter.get(requestTimeoutTime, TimeUnit.MILLISECONDS);
-                                } catch (Exception ignored) {
-
-                                    if (request.resendOnError) {
-                                        writer.get().write(request.query+"\n");
-                                        writer.get().flush();
-                                        System.out.println("ReSend: " + request.query);
-                                    } else {
-                                        readyForRequest.set(true);
-                                    }
+                                System.out.println("Sending: " + request.query);
+                                List<String> waitForResult = waitForResults(reader.get(),250);
+                                System.out.println("d");
+                                Optional<String> result = waitForResult.stream().filter(s -> s.contains(request.identifier)).findFirst();
+                                System.out.println("b");
+                                if (!result.isPresent()) {
+                                    System.out.println("e");
+                                    writer.get().write("dat");
+                                    writer.get().flush();
+                                    System.out.println("Sending Additional Data request!");
+                                    waitForResult = waitForResults(reader.get(),request.identifier,timeoutTime);
+                                    result = waitForResult.stream().filter(s -> s.contains(request.identifier)).findFirst();
                                 }
-
-                                deleteResultHook(checkResult);
+                                System.out.println("a");
+                                if (result.isPresent()) {
+                                    System.out.println("f");
+                                    waitForResult.stream().filter(s -> s.contains("ret")).forEach(s -> {
+                                        s = s.replace("ret:","");
+                                        String[] finalLineSplit = s.split(":");
+                                        String finalS = s;
+                                        queuedResults.get().stream().filter(queuedResult -> queuedResult.identifier().equals(finalLineSplit[0])).toList().forEach(queuedResult -> {
+                                            queuedResults.get().remove(queuedResult);
+                                            queuedResult.waiter.complete(finalS.replace(finalLineSplit[0] + ":", ""));
+                                        });
+                                    });
+                                } else {
+                                    System.out.println("Something went wrong");
+                                }
+                                System.out.println("c");
                                 request.waiter().complete(true);
                             } catch (Exception e) {
+                                System.out.println("ERROR");
                                 e.printStackTrace();
                                 request.waiter().complete(false);
                             }
+                            startListener();
+                            System.out.println("Restarted thread");
                         }
-                    }
-                    Thread.sleep(40);
+                    } else System.out.println("No Commands");
+                    Thread.sleep(1000);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -178,12 +260,13 @@ public class Connection {
 
     public void shutdown() {
         connectionProcess.get().destroy();
+        onShutdown.run();
     }
 
     private boolean isAlive() {
         if (!connectionProcess.get().isAlive()) {
             readyForRequest.set(false);
-            onShutdown.run(); // Shutdown Callback
+            disconnected();
             return false;
         }
         return true;
