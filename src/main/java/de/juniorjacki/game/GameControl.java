@@ -5,10 +5,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class GameControl {
 
     private GameField mainGameField = new GameField();
+    private GameField.ICSValue playerColor = GameField.ICSValue.YELLOW_DROP;
+
 
     public record possibleMove(GameField.FieldPosition position,long successRate){}
 
@@ -20,6 +23,26 @@ public class GameControl {
     public record PossibleWinLine(GameField.FieldPosition originField,List<GameField.FieldPosition> associatedFields, Direction direction){
         public boolean complete() {return associatedFields.size()>3;}
         public int associatedFieldCount() {return associatedFields.size();}
+        public List<GameField.FieldPosition> getNextFields() {
+            List<GameField.FieldPosition> fieldPositions = new ArrayList<>(associatedFields);
+            IntStream.range(associatedFields.size()-1, 3)
+                    .mapToObj(this::getField)
+                    .forEach(fieldPositions::add);
+            return fieldPositions;
+        }
+        private GameField.FieldPosition getField(int index){
+            if (index == 0) return originField;
+            return switch (direction) {
+                case UP -> new GameField.FieldPosition(originField.row(), (byte) (originField().column()-index));
+                case DOWN -> new GameField.FieldPosition(originField.row(), (byte) (originField().column()+index));
+                case LEFT -> new GameField.FieldPosition((byte) (originField.row()-index), originField().column());
+                case RIGHT-> new GameField.FieldPosition((byte) (originField.row()+index), originField().column());
+                case DIAGONAL_DOWN_LEFT -> new GameField.FieldPosition((byte) (originField.row()-index), (byte) (originField().column()+index));
+                case DIAGONAL_DOWN_RIGHT -> new GameField.FieldPosition((byte) (originField.row()+index), (byte) (originField().column()+index));
+                case DIAGONAL_UP_RIGHT -> new GameField.FieldPosition((byte) (originField.row()+index), (byte) (originField().column()-index));
+                case DIAGONAL_UP_LEFT -> new GameField.FieldPosition((byte) (originField.row()-index), (byte) (originField().column()-index));
+            };
+        }
     }
 
     public enum Direction {
@@ -48,27 +71,29 @@ public class GameControl {
     }
 
     /**
-     * Moves that are needed to prohibit the Win for the Player
-     * @param gameField
-     * @return
+     * @return Moves that are needed to prohibit the Win for the Player
      */
     private List<GameField.FieldPosition> getRequiredMoves(GameField gameField) {
-
+        return getPossibleWinLines(gameField, playerColor).stream()
+                .filter(possibleWinLine -> possibleWinLine.associatedFieldCount() > 2) // Only if 3 / 4 are already on GameField
+                .flatMap(winLine -> winLine.getNextFields().stream())
+                .collect(Collectors.toList());
     }
 
     /**
-     * Moves that would help the Player to Win and are Bad for the Bot
-     * @param gameField
-     * @return
+     * @return Moves that would help the Player to Win and are Bad for the Bot
      */
     private List<GameField.FieldPosition> getBadMoves(GameField gameField) {
-
+        return getPossibleWinLines(gameField, playerColor).stream()
+                .flatMap(winLine -> winLine.getNextFields().stream())
+                .map(field -> new GameField.FieldPosition(field.row(), (byte) (field.column() + 1))) // One field under it
+                .collect(Collectors.toList());
     }
 
 
     private List<PossibleWinLine> getPossibleWinLines(GameField gameField,GameField.ICSValue color) {
         List<GameField.FieldPosition> colorFields = getFieldsByColor(gameField,color);
-
+        return colorFields.stream().map(position -> {return getPossibleWinLinesForField(colorFields,position);}).filter(Objects::nonNull).flatMap(List::stream).collect(Collectors.toList());
     }
 
     private List<PossibleWinLine> getPossibleWinLinesForField(List<GameField.FieldPosition> colorFields,GameField.FieldPosition originField) {
