@@ -1,8 +1,6 @@
 package de.juniorjacki.game;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class GameField {
@@ -25,7 +23,51 @@ public class GameField {
      * @param row Row Counted from Driving Side Left to Right (Starting from Scanner reflektor)
      * @param column Column Counted Downwards (0 is the Top) , 5 is the Column at the Bottom
      */
-    public record FieldPosition(byte row,byte column) {}
+    public record FieldPosition(byte row,byte column) {
+        public FieldPosition getFieldBelow() {
+            return new FieldPosition(row, (byte) (column+1));
+        }
+        public boolean isFilled(GameField gameField) {
+            return !gameField.getFieldICSValue(this).equals(ICSValue.AIR);
+        }
+
+        public ICSValue getFieldICSValue(GameField gameField) {
+            return gameField.getFieldICSValue(this);
+        }
+
+        public boolean isFilledWith(GameField gameField,ICSValue color) {
+            return gameField.getFieldICSValue(this).equals(color);
+        }
+
+        public boolean isEmpty(GameField gameField) {
+            return gameField.getFieldICSValue(this).equals(ICSValue.AIR);
+        }
+
+        public Optional<Queue<FieldPosition>> getNeededMovesToFillField(GameField gameField) {
+            Optional<HashMap<Byte, Byte>> fieldRow = gameField.getRow(this.row());
+            if (fieldRow.isPresent()) {
+                if (this.isEmpty(gameField)) {
+                    Queue<GameField.FieldPosition> queue = new LinkedList<>();
+                    for (int i = 5; i >= this.column(); i--) {
+                        GameField.FieldPosition rowField = new GameField.FieldPosition(this.row(), (byte) i);
+                        if (rowField.isEmpty(gameField)) {
+                            queue.add(rowField);
+                        }
+                    }
+                    return Optional.of(queue);
+                }
+            }
+            return Optional.empty();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof FieldPosition position) {
+                return position.row == this.row && position.column == this.column;
+            }
+            return false;
+        }
+    }
 
 
     private AtomicReference<HashMap<Byte, Byte>> getRowReference(byte rowNum) {
@@ -54,8 +96,8 @@ public class GameField {
      * Sets the new Color Value of the specified field
      * @param newValue New Color Value
      */
-    public void updateField(FieldPosition position, byte newValue ){
-        updateField(position.row(),position.column(),newValue);
+    public GameField updateField(FieldPosition position, byte newValue ){
+        return updateField(position.row(),position.column(),newValue);
     }
 
     /**
@@ -64,10 +106,11 @@ public class GameField {
      * @param columnNum Column Counted Downwards (0 is the Top) , 5 is the Column at the Bottom
      * @param newValue New Color Value
      */
-    public void updateField(byte rowNum, byte columnNum, byte newValue ){
+    public GameField updateField(byte rowNum, byte columnNum, byte newValue ){
         Optional.ofNullable(getRowReference(rowNum)).ifPresent(rowReference -> {
             rowReference.get().put(columnNum,newValue);
         });
+        return this;
     }
 
     /**
@@ -110,8 +153,8 @@ public class GameField {
      * InterpretedColorScannerValue
      */
     public enum ICSValue {
-        RED_DROP(40,65 ),
-        YELLOW_DROP(70,100 ),
+        RED(40,65 ),
+        YELLOW(70,100 ),
         BLUE(20,35 ),
         AIR(0,  0);
 
@@ -124,7 +167,7 @@ public class GameField {
         }
 
         public static ICSValue getColorByValue(Byte colorValue) {
-            return Arrays.stream(values()).filter(iCSValue -> iCSValue.min >= colorValue && iCSValue.max <= colorValue).findFirst().orElse(AIR);
+            return Arrays.stream(values()).filter(iCSValue -> iCSValue.min <= colorValue && iCSValue.max >= colorValue).findFirst().orElse(AIR);
         }
 
     }
