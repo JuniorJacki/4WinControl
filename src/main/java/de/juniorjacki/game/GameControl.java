@@ -52,10 +52,25 @@ public class GameControl {
          */
         public List<GameField.FieldPosition> getNextFields() {
             List<GameField.FieldPosition> fieldPositions = new ArrayList<>();
-            IntStream.range(associatedFields.size(), 4)
+            IntStream.range(0, 4)
+                    .filter(value -> !associatedFields.contains(getField(value)))
                     .mapToObj(this::getField)
                     .forEach(fieldPositions::add);
             return fieldPositions;
+        }
+
+        /**
+         * @param fieldPosition Position of field on GameField
+         * @return The Index of the field in direction starting at, originField = 0
+         */
+        public int getFieldIndex(GameField.FieldPosition fieldPosition) {
+            if (fieldPosition.equals(originField)) return 0;
+            return switch (direction) {
+                case UP -> originField.column()-fieldPosition.column();
+                case DOWN -> fieldPosition.column()-originField.column();
+                case LEFT,DIAGONAL_DOWN_LEFT,DIAGONAL_UP_LEFT -> originField.row()-fieldPosition.row();
+                case RIGHT,DIAGONAL_UP_RIGHT,DIAGONAL_DOWN_RIGHT -> fieldPosition.row()-originField.column();
+            };
         }
 
         /**
@@ -117,6 +132,10 @@ public class GameControl {
                     .flatMap(field -> field.getNeededMovesToFillField(gameField).stream().flatMap(Collection::stream))
                     .distinct()
                     .collect(Collectors.toCollection(LinkedList::new));
+        }
+
+        public String format(GameField gameField) {
+            return "PossibleWinLine[" + originField + ", AssociatedFields: " + associatedFields + ", Direction: " + direction + ", NeededFields " +getNextFields() + ", MovesNeeded: " + getNeededMovesToFillLine(gameField).size() + "]" ;
         }
     }
 
@@ -212,8 +231,6 @@ public class GameControl {
                        0 1 2 3 4 5 6
          */
 
-        System.out.println("Color Fields Player " + control.getFieldsByColor(gameField,control.playerColor).size());
-        System.out.println("Color Fields Bot " + control.getFieldsByColor(gameField,control.botColor).size());
 
 
         GameField kian = new GameField()
@@ -226,25 +243,71 @@ public class GameControl {
 
 
                 .updateField(new GameField.FieldPosition((byte) 4, (byte) 5), (byte) 80)
+                .updateField(new GameField.FieldPosition((byte) 0, (byte) 2), (byte) 40)
+
+                .updateField(new GameField.FieldPosition((byte) 0, (byte) 1), (byte) 80)
+                .updateField(new GameField.FieldPosition((byte) 1, (byte) 5), (byte) 40)
+
+                .updateField(new GameField.FieldPosition((byte) 2, (byte) 5), (byte) 80)
+                .updateField(new GameField.FieldPosition((byte) 5, (byte) 5), (byte) 40)
+
+                .updateField(new GameField.FieldPosition((byte) 2, (byte) 4), (byte) 80)
+                .updateField(new GameField.FieldPosition((byte) 1, (byte) 4), (byte) 40)
+
+                .updateField(new GameField.FieldPosition((byte) 1, (byte) 3), (byte) 80)
+                .updateField(new GameField.FieldPosition((byte) 2, (byte) 3), (byte) 40)
+
+                .updateField(new GameField.FieldPosition((byte) 3, (byte) 4), (byte) 40)
+                .updateField(new GameField.FieldPosition((byte) 3, (byte) 3), (byte) 80)
+
+
 
                 ;
 
          /*
                     0: . . . . . . .
-                    1: . . . . . . .
-                    2: . . . . . . .
-                    3: R . . . . . .
-                    4: Y . . . . . .
-                    5: R . . Y Y . .
+                    1: Y . . . . . .
+                    2: R . . R . . .
+                    3: R Y R Y . . .
+                    4: Y R Y R . . .
+                    5: R R Y Y Y R .
                        0 1 2 3 4 5 6
          */
 
         //System.out.println(control.getCurrentPossibleWinLines(gameField,control.botColor));
+        /*
+         AlgorithmMove move = control.getPossibleSmartMove(kian, GameField.ICSValue.RED);
+            if (move == null) System.out.println("is leer");
+            System.out.println(move.toString());
+         */
+
+
         long time = System.currentTimeMillis();
-        AlgorithmMove move = control.getPossibleSmartMove(kian);
-        if (move == null) System.out.println("is leer");
-        System.out.println(move.toString());
+
+        System.out.println(control.playBotAgainstBot().generateBoardString());
+
         System.out.println("Calculation Time:" + (System.currentTimeMillis() - time));
+    }
+
+    public GameField playBotAgainstBot() {
+        GameField.ICSValue botCOL1 = GameField.ICSValue.RED;
+        GameField.ICSValue botCOL2 = GameField.ICSValue.YELLOW;
+        GameField gameField = new GameField();
+
+        boolean currentBot = false;
+
+        AlgorithmMove currentMove = getPossibleSmartMove(gameField,currentBot ? botCOL1 : botCOL2);
+        while (currentMove != null && currentMove.neededMovesToWinAfter != 0) {
+            gameField.updateField(currentMove.position,(currentBot ? botCOL1 : botCOL2).getMin());
+            System.out.println(currentMove.position + " " + currentMove.neededMovesToWinAfter);
+            System.out.println(gameField.generateBoardString());
+            currentBot = !currentBot;
+            currentMove = getPossibleSmartMove(gameField,currentBot ? botCOL1 : botCOL2);
+        }
+        gameField.updateField(currentMove.position,(currentBot ? botCOL1 : botCOL2).getMin());
+        System.out.println(currentMove.position + " " + currentMove.neededMovesToWinAfter);
+        System.out.println(gameField.generateBoardString());
+        return gameField;
     }
 
 
@@ -253,13 +316,14 @@ public class GameControl {
      * @param gameField The GameField the Algorithm uses
      * @return  Null if no Move was Found or the Next AlgorithmMove that Should be done associated with The Line the Bot wants to Fill to Win
      */
-    private AlgorithmMove getPossibleSmartMove(GameField gameField) {
+    private AlgorithmMove getPossibleSmartMove(GameField gameField, GameField.ICSValue moveColor) {
 
         // MIN-MAX Algorithm
-        List<PossibleWinLine> botCurrentWinLines = getCurrentPossibleWinLines(gameField,botColor).stream()
+        List<PossibleWinLine> botCurrentWinLines = getCurrentPossibleWinLines(gameField, (byte) 1,moveColor).stream()
                 .sorted(Comparator.comparingInt(winLine -> winLine.getNeededMovesToFillLine(gameField).size()))
                 .collect(Collectors.toList()); // Sorted WinLine List by needed Moves to complete
-        List<GameField.FieldPosition> badMoves = getBadMoves(gameField);
+
+        List<GameField.FieldPosition> badMoves = getBadMoves(gameField,moveColor == GameField.ICSValue.RED ? GameField.ICSValue.YELLOW : moveColor);
 
         AlgorithmMove currenWinLinesMove = filterMoves(gameField, botCurrentWinLines, badMoves);
         if (currenWinLinesMove != null) {
@@ -268,7 +332,7 @@ public class GameControl {
             }
         }
 
-        List<GameField.FieldPosition> requiredMoves = getRequiredMoves(gameField);
+        List<GameField.FieldPosition> requiredMoves = getRequiredMoves(gameField,moveColor == GameField.ICSValue.RED ? GameField.ICSValue.YELLOW : moveColor);
         if (!requiredMoves.isEmpty()) {
             GameField.FieldPosition neededMoveToProhibitPlayerWin = requiredMoves.stream()
                     .filter(field -> field.getNeededMovesToFillField(gameField)
@@ -281,15 +345,15 @@ public class GameControl {
             }
         }
 
-        if (currenWinLinesMove != null) {
-            return currenWinLinesMove;
-        }
-
-        List<PossibleWinLine> botNewWinLines = getNewPossibleWinLines(gameField).stream()
+        List<PossibleWinLine> botNewWinLines = getNewPossibleWinLines(gameField,moveColor).stream()
                 .sorted(Comparator.comparingInt(winLine -> winLine.getNeededMovesToFillLine(gameField).size()))
                 .collect(Collectors.toList()); // Sorted WinLine List by needed Moves to complete
-        System.out.println("ente");
-        return filterMoves(gameField, botNewWinLines, badMoves);
+        AlgorithmMove newLineMove = filterMoves(gameField, botNewWinLines, badMoves);
+        if (currenWinLinesMove != null) {
+            if (newLineMove == null) return currenWinLinesMove;
+            if (newLineMove.neededMovesToWinAfter >= currenWinLinesMove.neededMovesToWinAfter) return currenWinLinesMove;
+        }
+        return newLineMove;
     }
 
     /**
@@ -301,7 +365,7 @@ public class GameControl {
     private static AlgorithmMove filterMoves(GameField gameField, List<PossibleWinLine> botCurrentWinLines, List<GameField.FieldPosition> badMoves) {
         if (!botCurrentWinLines.isEmpty()) {
             for (PossibleWinLine botCurrentWinLine : botCurrentWinLines) {
-                System.out.println(botCurrentWinLine.toString());
+                System.out.println(botCurrentWinLine.format(gameField));
                 for (GameField.FieldPosition nextField : botCurrentWinLine.getNextFields()) {
                     Optional<GameField.FieldPosition> nextNeededMoveForLine = nextField.getNeededMovesToFillField(gameField).map(fieldPositions -> {
                         if (!fieldPositions.isEmpty()) {return fieldPositions.poll();}
@@ -309,11 +373,9 @@ public class GameControl {
                     });
                     if (nextNeededMoveForLine.isPresent()) {
                         if (!badMoves.contains(nextField)) {
-                            System.out.println("next");
-                            return new AlgorithmMove(nextNeededMoveForLine.get(), botCurrentWinLine, botCurrentWinLine.neededFieldsForLine() - 1);
+                            return new AlgorithmMove(nextNeededMoveForLine.get(), botCurrentWinLine, botCurrentWinLine.getNeededMovesToFillLine(gameField).size() - 1);
                         } else {
                             if (botCurrentWinLine.neededFieldsForLine() == 1) { // Checks if Move would be last Move and can be done despite it is a Bad Move
-                                System.out.println("other");
                                 return new AlgorithmMove(nextNeededMoveForLine.get(), botCurrentWinLine, 0);
                             }
                         }
@@ -321,7 +383,6 @@ public class GameControl {
                 }
             }
         }
-        System.out.println("bad");
         return null;
     }
 
@@ -329,11 +390,11 @@ public class GameControl {
      * @param gameField GameField the Operation should be done on
      * @return A List of Possible new WinLines on the specified GameField current Fields not considered
      */
-    private List<PossibleWinLine> getNewPossibleWinLines(GameField gameField) {
+    private List<PossibleWinLine> getNewPossibleWinLines(GameField gameField, GameField.ICSValue moveColor) {
         return getPossibleNextMoves(gameField)
                 .stream()
-                .parallel()
-                .map(position -> getNewPossibleWinLines(gameField,position))
+                .parallel() // Multithreaded for each Field
+                .map(position -> getNewPossibleWinLines(gameField,position,moveColor))
                 .flatMap(Collection::stream)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
@@ -344,10 +405,10 @@ public class GameControl {
      * @param origin Field at which the WinLine starts
      * @return A List of Possible new WinLines on the specified GameField starting on the specified WinLine current Fields not considered
      */
-    private List<PossibleWinLine> getNewPossibleWinLines(GameField gameField, GameField.FieldPosition origin) {
+    private List<PossibleWinLine> getNewPossibleWinLines(GameField gameField, GameField.FieldPosition origin, GameField.ICSValue moveColor) {
         return Arrays.stream(Direction.values())
                 .parallel() // Multithreaded for each Direction
-                .map(dir -> new PossibleWinLine(origin, List.of(origin), dir).isPossible(gameField,botColor))
+                .map(dir -> new PossibleWinLine(origin, List.of(), dir).isPossible(gameField,moveColor))
                 .collect(Collectors.toList());
     }
 
@@ -355,16 +416,8 @@ public class GameControl {
     /**
      * @return Moves that are needed to prohibit the Win for the Player
      */
-    private List<GameField.FieldPosition> getRequiredMoves(GameField gameField) {
-        return getCurrentPossibleWinLines(gameField, playerColor).stream()
-                .filter(possibleWinLine -> {
-
-                            if (possibleWinLine.associatedFieldCount() > 2) {
-                                System.out.println("User WinLine" +possibleWinLine.toString());
-                                return true;
-                            }
-                            return false;
-                }) // Only if 3 / 4 are already on GameField
+    private List<GameField.FieldPosition> getRequiredMoves(GameField gameField, GameField.ICSValue enemyColor) {
+        return getCurrentPossibleWinLines(gameField, (byte) 3,enemyColor).stream()
                 .flatMap(winLine -> winLine.getNextFields().stream())
                 .collect(Collectors.toList());
     }
@@ -372,15 +425,8 @@ public class GameControl {
     /**
      * @return Moves that would help the Player to Win and are Bad for the Bot
      */
-    private List<GameField.FieldPosition> getBadMoves(GameField gameField) {
-        return getCurrentPossibleWinLines(gameField, playerColor).stream()
-                .filter(possibleWinLine -> {
-                    if (possibleWinLine.associatedFieldCount() > 2) {
-                        System.out.println("User Bad WinLine" +possibleWinLine.toString());
-                        return true;
-                    }
-                    return false;
-                })
+    private List<GameField.FieldPosition> getBadMoves(GameField gameField, GameField.ICSValue enemyColor) {
+        return getCurrentPossibleWinLines(gameField, (byte) 3,enemyColor).stream()
                 .flatMap(winLine -> winLine.getNextFields().stream())
                 .map(field -> new GameField.FieldPosition(field.row(), (byte) (field.column() + 1))) // One field under it
                 .collect(Collectors.toList());
@@ -392,9 +438,9 @@ public class GameControl {
      * @param color Color of Fields to consider
      * @return A List of Possible WinLines on the specified GameField starting on the specified WinLine considered current Fields
      */
-    private List<PossibleWinLine> getCurrentPossibleWinLines(GameField gameField, GameField.ICSValue color) {
+    private List<PossibleWinLine> getCurrentPossibleWinLines(GameField gameField,byte minFieldsForLine, GameField.ICSValue color) {
         List<GameField.FieldPosition> colorFields = getFieldsByColor(gameField,color);
-        return colorFields.stream().parallel().map(position -> getPossibleWinLinesForField(gameField,colorFields,position)).filter(Objects::nonNull).flatMap(List::stream).collect(Collectors.toList());
+        return colorFields.stream().parallel().map(position -> getPossibleWinLinesForField(gameField,minFieldsForLine,colorFields,position)).filter(Objects::nonNull).flatMap(List::stream).collect(Collectors.toList());
     }
 
     /**
@@ -403,7 +449,7 @@ public class GameControl {
      * @param originField The Field the WinLines start at
      * @return A List of Possible WinLines on the specified GameField starting on the specified WinLine considered current Fields
      */
-    private List<PossibleWinLine> getPossibleWinLinesForField(GameField gameField,List<GameField.FieldPosition> consideredFields,GameField.FieldPosition originField) {
+    private List<PossibleWinLine> getPossibleWinLinesForField(GameField gameField,byte minFieldsForLine,List<GameField.FieldPosition> consideredFields,GameField.FieldPosition originField) {
         CompletableFuture<List<PossibleWinLine>> futureStraight = new CompletableFuture<>();
         CompletableFuture<List<PossibleWinLine>> futureDiagonal = new CompletableFuture<>();
         CompletableFuture<List<PossibleWinLine>> futureVertical = new CompletableFuture<>();
@@ -426,11 +472,11 @@ public class GameControl {
 
             // Straight Right Thread
             new Thread(() -> {
-                searchForStraightPossibleWinLine(gameField,columnPositions, originFieldRef, futureStraightRight,Direction.RIGHT);
+                searchForStraightPossibleWinLine(gameField,minFieldsForLine,columnPositions, originFieldRef, futureStraightRight,Direction.RIGHT);
             }).start();
             // Straight Left Thread
             new Thread(() -> {
-                searchForStraightPossibleWinLine(gameField,columnPositions, originFieldRef, futureStraightLeft,Direction.LEFT);
+                searchForStraightPossibleWinLine(gameField,minFieldsForLine,columnPositions, originFieldRef, futureStraightLeft,Direction.LEFT);
             }).start();
             futureStraight.complete(getListOfFutures(futureStraightRight,futureStraightLeft));
         }).start();
@@ -445,19 +491,19 @@ public class GameControl {
             // Diagonal RIGHT UP THREAD
 
             new Thread(() -> {
-                searchForDirectionalPossibleWinLine(gameField,fieldMapRef, originFieldRef, futureDiagonalUpRight,Direction.DIAGONAL_UP_RIGHT);
+                searchForDirectionalPossibleWinLine(gameField,minFieldsForLine,fieldMapRef, originFieldRef, futureDiagonalUpRight,Direction.DIAGONAL_UP_RIGHT);
             }).start();
             // Diagonal LEFT UP THREAD
             new Thread(() -> {
-                searchForDirectionalPossibleWinLine(gameField,fieldMapRef, originFieldRef, futureDiagonalUpLeft,Direction.DIAGONAL_UP_LEFT);
+                searchForDirectionalPossibleWinLine(gameField,minFieldsForLine,fieldMapRef, originFieldRef, futureDiagonalUpLeft,Direction.DIAGONAL_UP_LEFT);
             }).start();
             // Diagonal RIGHT Down THREAD
             new Thread(() -> {
-                searchForDirectionalPossibleWinLine(gameField,fieldMapRef, originFieldRef, futureDiagonalDownRight,Direction.DIAGONAL_DOWN_RIGHT);
+                searchForDirectionalPossibleWinLine(gameField,minFieldsForLine,fieldMapRef, originFieldRef, futureDiagonalDownRight,Direction.DIAGONAL_DOWN_RIGHT);
             }).start();
             // Diagonal Left Down THREAD
             new Thread(() -> {
-                searchForDirectionalPossibleWinLine(gameField,fieldMapRef, originFieldRef, futureDiagonalDownLeft,Direction.DIAGONAL_DOWN_LEFT);
+                searchForDirectionalPossibleWinLine(gameField,minFieldsForLine,fieldMapRef, originFieldRef, futureDiagonalDownLeft,Direction.DIAGONAL_DOWN_LEFT);
             }).start();
 
             futureDiagonal.complete(getListOfFutures(futureDiagonalDownLeft,futureDiagonalUpLeft,futureDiagonalDownRight,futureDiagonalUpRight));
@@ -474,11 +520,11 @@ public class GameControl {
             }
             // Straight Right Thread
             new Thread(() -> {
-                searchForVerticalPossibleWinLine(gameField,rowPositions, originFieldRef, futureUp,Direction.UP);
+                searchForVerticalPossibleWinLine(gameField,minFieldsForLine,rowPositions, originFieldRef, futureUp,Direction.UP);
             }).start();
             // Straight Left Thread
             new Thread(() -> {
-                searchForVerticalPossibleWinLine(gameField,rowPositions, originFieldRef,futureDown,Direction.DOWN);
+                searchForVerticalPossibleWinLine(gameField,minFieldsForLine,rowPositions, originFieldRef,futureDown,Direction.DOWN);
             }).start();
             futureVertical.complete(getListOfFutures(futureUp,futureDown));
         }).start();
@@ -499,7 +545,10 @@ public class GameControl {
             return null;}}).filter(Objects::nonNull).flatMap(List::stream).collect(Collectors.toList());
     }
 
-    private static void searchForVerticalPossibleWinLine(GameField gameField,AtomicReference<List<GameField.FieldPosition>> rowPositionsRef, AtomicReference<GameField.FieldPosition> originFieldRef, CompletableFuture<PossibleWinLine> resultFuture,Direction direction) {
+
+
+
+    private static void searchForVerticalPossibleWinLine(GameField gameField,byte minFieldsForLine,AtomicReference<List<GameField.FieldPosition>> rowPositionsRef, AtomicReference<GameField.FieldPosition> originFieldRef, CompletableFuture<PossibleWinLine> resultFuture,Direction direction) {
         if (direction != Direction.UP && direction != Direction.DOWN) { throw new InputMismatchException("Wrong Input: Direction");}
         try {
             if (rowPositionsRef.get().stream().anyMatch(position -> position.column() == originFieldRef.get().column()+(direction == Direction.UP ? +1 : -1))) { // if originField is not the (for Direction Right: Left Field) (for Direction Left: Right Field)  of a Win Line
@@ -513,9 +562,10 @@ public class GameControl {
                 int finalCount = count;
                 if (rowPositionsRef.get().stream().anyMatch(position -> position.column() == originFieldRef.get().column()+(direction == Direction.UP ? -finalCount : +finalCount))) {
                     winLineFields.add(new GameField.FieldPosition(originFieldRef.get().row(), (byte) (originFieldRef.get().column()+(direction == Direction.UP ? -finalCount : +finalCount))));
-                } else break;
+                }
             }
-            if (winLineFields.size() < 2) {
+
+            if (winLineFields.size() < minFieldsForLine) {
                 resultFuture.complete(null);
                 return;
             }
@@ -526,7 +576,7 @@ public class GameControl {
         }
     }
 
-    private static void searchForDirectionalPossibleWinLine(GameField gameField,AtomicReference<List<GameField.FieldPosition>> fieldMapRef, AtomicReference<GameField.FieldPosition> originFieldRef, CompletableFuture<PossibleWinLine> resultFuture,Direction direction) {
+    private static void searchForDirectionalPossibleWinLine(GameField gameField,byte minFieldsForLine,AtomicReference<List<GameField.FieldPosition>> fieldMapRef, AtomicReference<GameField.FieldPosition> originFieldRef, CompletableFuture<PossibleWinLine> resultFuture,Direction direction) {
 
         if (direction != Direction.DIAGONAL_UP_RIGHT && direction != Direction.DIAGONAL_DOWN_LEFT && direction != Direction.DIAGONAL_DOWN_RIGHT && direction != Direction.DIAGONAL_UP_LEFT) { throw new InputMismatchException("Wrong Input: Direction");}
         try {
@@ -542,12 +592,15 @@ public class GameControl {
                 int finalCount = count;
                 if (fieldMapRef.get().stream().anyMatch(position -> position.row() == originFieldRef.get().row()+(direction == Direction.DIAGONAL_DOWN_LEFT || direction == Direction.DIAGONAL_UP_LEFT ? -finalCount : +finalCount) &&  position.column() == originFieldRef.get().column()+(direction == Direction.DIAGONAL_DOWN_LEFT || direction == Direction.DIAGONAL_DOWN_RIGHT ? +finalCount : -finalCount))) {
                     winLineFields.add(new GameField.FieldPosition((byte) (originFieldRef.get().row()+(direction == Direction.DIAGONAL_DOWN_LEFT || direction == Direction.DIAGONAL_UP_LEFT ? -finalCount : +finalCount)), (byte) (originFieldRef.get().column()+(direction == Direction.DIAGONAL_DOWN_LEFT || direction == Direction.DIAGONAL_DOWN_RIGHT ? +finalCount : -finalCount))));
-                } else break;
+                }
             }
-            if (winLineFields.size() < 2) {
+
+            if (winLineFields.size() < minFieldsForLine) {
                 resultFuture.complete(null);
                 return;
             }
+
+
             resultFuture.complete(new PossibleWinLine(originFieldRef.get(),winLineFields,direction).isPossible(gameField,originFieldRef.get().getFieldICSValue(gameField)));
         } catch (Exception ignored) {
             resultFuture.complete(null);
@@ -555,7 +608,7 @@ public class GameControl {
 
     }
 
-    private static void searchForStraightPossibleWinLine(GameField gameField,AtomicReference<List<GameField.FieldPosition>> columnPositionsRef, AtomicReference<GameField.FieldPosition> originFieldRef, CompletableFuture<PossibleWinLine> resultFuture,Direction direction) {
+    private static void searchForStraightPossibleWinLine(GameField gameField,byte minFieldsForLine,AtomicReference<List<GameField.FieldPosition>> columnPositionsRef, AtomicReference<GameField.FieldPosition> originFieldRef, CompletableFuture<PossibleWinLine> resultFuture,Direction direction) {
         if (direction != Direction.RIGHT && direction != Direction.LEFT) { throw new InputMismatchException("Wrong Input: Direction");}
         try {
             if (columnPositionsRef.get().stream().anyMatch(position -> position.row() == originFieldRef.get().row()+(direction == Direction.RIGHT ? -1 : +1))) { // if originField is not the (for Direction Right: Left Field) (for Direction Left: Right Field)  of a Win Line
@@ -570,12 +623,15 @@ public class GameControl {
                 int finalCount = count;
                 if (columnPositionsRef.get().stream().anyMatch(position -> position.row() == originFieldRef.get().row()+(direction == Direction.RIGHT ? +finalCount : -finalCount))) {
                     winLineFields.add(new GameField.FieldPosition((byte) (originFieldRef.get().row()+(direction == Direction.RIGHT ? +finalCount : -finalCount)),originFieldRef.get().column()));
-                } else break;
+                }
             }
-            if (winLineFields.size() < 2) {
+
+            if (winLineFields.size() < minFieldsForLine) {
                 resultFuture.complete(null);
                 return;
             }
+
+
             resultFuture.complete(new PossibleWinLine(originFieldRef.get(),winLineFields,direction).isPossible(gameField,originFieldRef.get().getFieldICSValue(gameField)));
         } catch (Exception exc) {
             exc.printStackTrace();

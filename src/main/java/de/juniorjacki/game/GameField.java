@@ -69,6 +69,36 @@ public class GameField {
         }
     }
 
+    public String generateBoardString() {
+        StringBuilder board = new StringBuilder();
+
+        // Iteriere über die Zeilen (y-Richtung, column, 0 bis 5)
+        for (byte column = 0; column < 6; column++) {
+            // Zeilennummer und Start des Zeileninhalts
+            board.append(String.format("%d: ", column));
+
+            // Iteriere über die Spalten (x-Richtung, row, 0 bis 6)
+            for (byte row = 0; row < 7; row++) {
+                ICSValue value = getFieldICSValue(row, column);
+                if (value == ICSValue.RED) {
+                    board.append("R ");
+                } else if (value == ICSValue.YELLOW) {
+                    board.append("Y ");
+                } else {
+                    board.append(". ");
+                }
+            }
+            // Entferne das letzte Leerzeichen und füge Zeilenumbruch hinzu
+            board.setLength(board.length() - 1);
+            board.append("\n");
+        }
+
+        // Füge die Spaltenindizes hinzu
+        board.append("   0 1 2 3 4 5 6\n");
+
+        return board.toString();
+    }
+
 
     private AtomicReference<HashMap<Byte, Byte>> getRowReference(byte rowNum) {
         return switch (rowNum) {
@@ -157,6 +187,10 @@ public class GameField {
         YELLOW(70,100 ),
         BLUE(20,35 ),
         AIR(0,  0);
+
+        public byte getMin() {
+            return min;
+        }
 
         private final byte min;
         private final byte max;
