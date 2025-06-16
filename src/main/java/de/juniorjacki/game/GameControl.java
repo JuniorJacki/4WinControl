@@ -73,7 +73,6 @@ public class GameControl {
                 case DIAGONAL_DOWN_RIGHT -> new GameField.FieldPosition((byte) (originField.row()+index), (byte) (originField().column()+index));
                 case DIAGONAL_UP_RIGHT -> new GameField.FieldPosition((byte) (originField.row()+index), (byte) (originField().column()-index));
                 case DIAGONAL_UP_LEFT -> new GameField.FieldPosition((byte) (originField.row()-index), (byte) (originField().column()-index));
-                case PROHIBIT_USER_WIN -> originField;
             };
         }
 
@@ -129,8 +128,7 @@ public class GameControl {
         DIAGONAL_UP_RIGHT,
         DIAGONAL_UP_LEFT,
         DIAGONAL_DOWN_RIGHT,
-        DIAGONAL_DOWN_LEFT,
-        PROHIBIT_USER_WIN
+        DIAGONAL_DOWN_LEFT
     }
 
 
@@ -217,9 +215,35 @@ public class GameControl {
         System.out.println("Color Fields Player " + control.getFieldsByColor(gameField,control.playerColor).size());
         System.out.println("Color Fields Bot " + control.getFieldsByColor(gameField,control.botColor).size());
 
+
+        GameField kian = new GameField()
+                .updateField(new GameField.FieldPosition((byte) 3, (byte) 5), (byte) 80)
+                .updateField(new GameField.FieldPosition((byte) 0, (byte) 5), (byte) 40)
+
+
+                .updateField(new GameField.FieldPosition((byte) 0, (byte) 4), (byte) 80)
+                .updateField(new GameField.FieldPosition((byte) 0, (byte) 3), (byte) 40)
+
+
+                .updateField(new GameField.FieldPosition((byte) 4, (byte) 5), (byte) 80)
+
+                ;
+
+         /*
+                    0: . . . . . . .
+                    1: . . . . . . .
+                    2: . . . . . . .
+                    3: R . . . . . .
+                    4: Y . . . . . .
+                    5: R . . Y Y . .
+                       0 1 2 3 4 5 6
+         */
+
         //System.out.println(control.getCurrentPossibleWinLines(gameField,control.botColor));
         long time = System.currentTimeMillis();
-        System.out.println(control.getPossibleSmartMove(gameField4).toString());
+        AlgorithmMove move = control.getPossibleSmartMove(kian);
+        if (move == null) System.out.println("is leer");
+        System.out.println(move.toString());
         System.out.println("Calculation Time:" + (System.currentTimeMillis() - time));
     }
 
@@ -253,7 +277,7 @@ public class GameControl {
                     .findFirst()
                     .orElse(null); // Gets the needed move to prohibit WinLine of Player if one move is needed to complete the WinLine
             if (neededMoveToProhibitPlayerWin != null) {
-                return new AlgorithmMove(neededMoveToProhibitPlayerWin,new PossibleWinLine(neededMoveToProhibitPlayerWin,new ArrayList<>(List.of(neededMoveToProhibitPlayerWin)),Direction.PROHIBIT_USER_WIN),-1);
+                return new AlgorithmMove(neededMoveToProhibitPlayerWin,new PossibleWinLine(neededMoveToProhibitPlayerWin,new ArrayList<>(List.of(neededMoveToProhibitPlayerWin)),null),-1);
             }
         }
 
@@ -264,6 +288,7 @@ public class GameControl {
         List<PossibleWinLine> botNewWinLines = getNewPossibleWinLines(gameField).stream()
                 .sorted(Comparator.comparingInt(winLine -> winLine.getNeededMovesToFillLine(gameField).size()))
                 .collect(Collectors.toList()); // Sorted WinLine List by needed Moves to complete
+        System.out.println("ente");
         return filterMoves(gameField, botNewWinLines, badMoves);
     }
 
@@ -284,9 +309,11 @@ public class GameControl {
                     });
                     if (nextNeededMoveForLine.isPresent()) {
                         if (!badMoves.contains(nextField)) {
+                            System.out.println("next");
                             return new AlgorithmMove(nextNeededMoveForLine.get(), botCurrentWinLine, botCurrentWinLine.neededFieldsForLine() - 1);
                         } else {
                             if (botCurrentWinLine.neededFieldsForLine() == 1) { // Checks if Move would be last Move and can be done despite it is a Bad Move
+                                System.out.println("other");
                                 return new AlgorithmMove(nextNeededMoveForLine.get(), botCurrentWinLine, 0);
                             }
                         }
@@ -294,6 +321,7 @@ public class GameControl {
                 }
             }
         }
+        System.out.println("bad");
         return null;
     }
 
@@ -329,7 +357,14 @@ public class GameControl {
      */
     private List<GameField.FieldPosition> getRequiredMoves(GameField gameField) {
         return getCurrentPossibleWinLines(gameField, playerColor).stream()
-                .filter(possibleWinLine -> possibleWinLine.associatedFieldCount() > 2) // Only if 3 / 4 are already on GameField
+                .filter(possibleWinLine -> {
+
+                            if (possibleWinLine.associatedFieldCount() > 2) {
+                                System.out.println("User WinLine" +possibleWinLine.toString());
+                                return true;
+                            }
+                            return false;
+                }) // Only if 3 / 4 are already on GameField
                 .flatMap(winLine -> winLine.getNextFields().stream())
                 .collect(Collectors.toList());
     }
@@ -339,7 +374,13 @@ public class GameControl {
      */
     private List<GameField.FieldPosition> getBadMoves(GameField gameField) {
         return getCurrentPossibleWinLines(gameField, playerColor).stream()
-                .filter(possibleWinLine -> possibleWinLine.associatedFieldCount() > 2)
+                .filter(possibleWinLine -> {
+                    if (possibleWinLine.associatedFieldCount() > 2) {
+                        System.out.println("User Bad WinLine" +possibleWinLine.toString());
+                        return true;
+                    }
+                    return false;
+                })
                 .flatMap(winLine -> winLine.getNextFields().stream())
                 .map(field -> new GameField.FieldPosition(field.row(), (byte) (field.column() + 1))) // One field under it
                 .collect(Collectors.toList());
