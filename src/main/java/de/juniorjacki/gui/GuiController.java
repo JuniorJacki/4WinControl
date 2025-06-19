@@ -4,8 +4,7 @@ import de.juniorjacki.connection.Connection;
 import de.juniorjacki.connection.Hub;
 import de.juniorjacki.connection.HubController;
 
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 import static de.juniorjacki.Main.connection;
 import static de.juniorjacki.Main.shutDown;
@@ -163,6 +162,11 @@ public class GuiController extends javax.swing.JFrame {
         jPanel7.setForeground(new java.awt.Color(255, 255, 255));
 
         jButton2.setText("jButton2");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
@@ -235,24 +239,74 @@ public class GuiController extends javax.swing.JFrame {
     }// </editor-fold>
 
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:
-
+    public void connectHub() {
         if (!HubController.Instance.isConnected("Hub 10")) {
             if (!HubController.Instance.connect("Hub 10")) return;
         }
+    }
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
+        // TODO add your handling code here:
+
+        connectHub();
 
         new Thread(() -> {
             Hub hub = HubController.Instance.getHub("Hub 10");
             if (hub != null) {
-                System.out.println("New Command");
-                hub.moveToRow((byte) new Random().nextInt(0,6));
+
+                int index = hub.getCalibrationIndex();
+                System.out.println("-------------------");
+                System.out.println("Calibration: " + index);
             }
-        }
-        ).start();
+        }).start();
+
+        new Thread(() -> {
+            Hub hub = HubController.Instance.getHub("Hub 10");
+            if (hub != null) {
+                byte row = (byte) new Random().nextInt(0,6);
+                hub.moveToRow(row);
+                System.out.println("Moved to row " + row);
+                System.out.println("Color: " + hub.getColorValue( (byte) 5));
+            }
+        }).start();
 
 
     }
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {
+        connectHub();
+
+        /*
+        new Thread(() -> {
+            Hub hub = HubController.Instance.getHub("Hub 10");
+            if (hub != null) {
+                List<Byte> numbers = new ArrayList<Byte>(List.of((byte)0,(byte) 1, (byte)2,(byte) 3, (byte)4,(byte) 5, (byte)6));
+                Collections.shuffle(numbers);
+                System.out.println("---------------");
+                System.out.println("Calibration: " + hub.getCalibrationIndex());
+                numbers.forEach(number -> {
+                    System.out.println("Throw Row = " +number);
+                    System.out.println("Row: "+ number+ " Value: " +hub.getColorValue(number,(byte)5));
+                });
+
+            }
+        }).start();
+
+         */
+
+        new Thread(() -> {
+            Hub hub = HubController.Instance.getHub("Hub 10");
+            if (hub != null) {
+                List<Byte> numbers = new ArrayList<Byte>(List.of((byte)0,(byte) 1, (byte)2,(byte) 3, (byte)4,(byte) 5, (byte)6));
+                Collections.shuffle(numbers);
+                System.out.println("---------------");
+                System.out.println("Calibration: " + hub.getCalibrationIndex());
+                System.out.println("Thrown: " +hub.throwPlate(numbers.get(0),(byte)5));
+
+            }
+        }).start();
+    }
+
     // Variables declaration - do not modify
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;

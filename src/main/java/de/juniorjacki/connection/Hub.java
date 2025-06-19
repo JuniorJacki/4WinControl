@@ -37,11 +37,64 @@ public class Hub {
         return batteryPercentage;
     }
 
+    public int getCalibrationIndex() {
+        if (hubConnection != null) {
+            return Integer.parseInt(hubConnection.sendRequest("res").orElse("-1"));
+        }
+        return -1;
+    }
+
     public boolean moveToRow(byte row) {
+        int rowDistance = getRowDistance(row);
+        if (rowDistance == -1) return false;
+        System.out.println("Move to distance " + rowDistance + " row " + row);
+        return hubConnection.sendCommand("mtd", String.valueOf(rowDistance));
+    }
+
+    public int getRowDistance(byte row) {
+        int index = getCalibrationIndex();
+        if (index == -1) return index;
+        return switch (index) {
+            case 58,59,60 -> switch (row) {
+              case 0 -> 93;
+              case 1 -> 122;
+              case 2 -> 150;
+              case 3 -> 182;
+              case 4 -> 207;
+              case 5 -> 236;
+              case 6 -> 280;
+              default -> -1;
+            };
+
+            case 56,57 -> switch (row) {
+                case 0 -> 92;
+                case 1 -> 121;
+                case 2 -> 150;
+                case 3 -> 181;
+                case 4 -> 208;
+                case 5 -> 233;
+                case 6 -> 280;
+                default -> -1;
+            };
+
+            case 53,54,55 -> switch (row) {
+                case 0 -> 92;
+                case 1 -> 120;
+                case 2 -> 149;
+                case 3 -> 179;
+                case 4 -> 210;
+                case 5 -> 231;
+                case 6 -> 280;
+                default -> -1;
+            };
+            default -> -1;
+        };
+    }
+
+    public boolean oldMoveToRow(byte row) {
         if (row < 0 || row > 6) return false;
         if (hubConnection != null) {
-            System.out.println("Moving to row " + row);
-            return hubConnection.sendCommand("ro"+row);
+            return hubConnection.sendCommand("row", String.valueOf(row));
         }
         return false;
     }
@@ -49,12 +102,35 @@ public class Hub {
     public byte getColorValue(byte row,byte col) {
         if (row < 0 || row > 6 || col < 0 || col > 5) return -1;
         if (moveToRow(row)) {
-            Optional<String> result = hubConnection.sendRequest("co"+col);
+            Optional<String> result = hubConnection.sendRequest("col", String.valueOf(col));
             if (result.isPresent()) {
                 return Byte.parseByte(result.get());
             }
         }
         return -1;
+    }
+
+    public byte getColorValue(byte col) {
+        if ( col < 0 || col > 5) return -1;
+        Optional<String> result = hubConnection.sendRequest("col", String.valueOf(col));
+        if (result.isPresent()) {
+            return Byte.parseByte(result.get());
+        }
+        return -1;
+    }
+
+    public boolean throwPlate(byte row,byte col) {
+        if (!moveToRow(row)) return false;
+        if (!hubConnection.sendCommand("thr")) return false;
+        byte color = getColorValue(col);
+        int i = 0;
+        int dist = getRowDistance(row);
+        while (color < 40 && i < 5) {
+            hubConnection.sendCommand("shk", String.valueOf(dist));
+            i++;
+            color = getColorValue(col);
+        }
+        return true;
     }
 
     private void requestStatusData() {
