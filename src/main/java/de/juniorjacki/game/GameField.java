@@ -39,6 +39,31 @@ public class GameField {
             return gameField.getFieldICSValue(this).equals(color);
         }
 
+        /**
+         * @return If Position is neighbour to given Position
+         */
+        public boolean isAside(FieldPosition position) {
+            if (position.column == this.column) {
+                if (position.row-1 == this.row || position.row+1 == this.row) return true ;
+            }
+            return false;
+        }
+
+        /**
+         * @return If Position is neighbour to any of the given Positions. But only if Position in not in the middle of the Positions
+         */
+        public boolean isAside(List<FieldPosition> positions) {
+            if (positions.isEmpty()) return false;
+            if (positions.size() >= 3) return true;
+
+            if (positions.size() == 2) {
+                if (column == positions.get(0).column || column == positions.get(1).column) {
+                    if ((positions.get(0).row > this.row && positions.get(1).row > this.row) ||  (positions.get(0).row < this.row && positions.get(1).row < this.row) && ((positions.get(1).row+1) != positions.get(0).row || (positions.get(1).row-1) != positions.get(0).row)) return false;
+                }
+            } else return isAside(positions.get(0));
+            return true;
+        }
+
         public boolean isEmpty(GameField gameField) {
             return gameField.getFieldICSValue(this).equals(ICSValue.AIR);
         }
