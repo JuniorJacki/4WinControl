@@ -19,6 +19,20 @@ public class GameField {
     AtomicReference<HashMap<Byte, Byte>> row6 = new AtomicReference<>(new HashMap<Byte, Byte>());
 
     /**
+     *
+     * @param gameField Gamefield at Timestamp
+     * @param currentMove Current Move that was done
+     * @param opponentMove Last Move that was done by Opponnent
+     * @param badMoves Bad Moves for Bot current Move
+     * @param prohibitMoves Prohibit Moves that that should be done to prohibit Opponent Win
+     * @param currentWinLine
+     * @param needMovesToWinAfterCurrent
+     * @param neededMovesToWinAfterOpponent
+     * @param timestamp
+     */
+    public record HistoryMove(GameField gameField, FieldPosition currentMove, FieldPosition opponentMove, List<FieldPosition> badMoves, GameControl.AlgorithmMove prohibitMoves, GameControl.PossibleWinLine currentWinLine, int needMovesToWinAfterCurrent, int neededMovesToWinAfterOpponent, long timestamp) {}
+
+    /**
      * Object for selecting Field on the GameField
      * @param row Row Counted from Driving Side Left to Right (Starting from Scanner reflektor)
      * @param column Column Counted Downwards (0 is the Top) , 5 is the Column at the Bottom
@@ -124,6 +138,18 @@ public class GameField {
         return board.toString();
     }
 
+    public HashMap<Byte,HashMap<Byte,Byte>> getAllFields() {
+        HashMap<Byte,HashMap<Byte,Byte>> fieldList = new HashMap<>();
+        fieldList.put((byte) 0,row0.get());
+        fieldList.put((byte) 1,row1.get());
+        fieldList.put((byte) 2,row2.get());
+        fieldList.put((byte) 3,row3.get());
+        fieldList.put((byte) 4,row4.get());
+        fieldList.put((byte) 5,row5.get());
+        fieldList.put((byte) 6,row6.get());
+        return fieldList;
+    }
+
 
     private AtomicReference<HashMap<Byte, Byte>> getRowReference(byte rowNum) {
         return switch (rowNum) {
@@ -148,7 +174,7 @@ public class GameField {
     }
 
     /**
-     * Sets the new Color Value of the specified field
+     * Sets the new Color Value of the specified gameField
      * @param newValue New Color Value
      */
     public GameField updateField(FieldPosition position, byte newValue ){
@@ -156,7 +182,7 @@ public class GameField {
     }
 
     /**
-     * Sets the new Color Value of the specified field
+     * Sets the new Color Value of the specified gameField
      * @param rowNum Row Number Counted from Driving Side Left to Right (Starting from Scanner reflektor)
      * @param columnNum Column Counted Downwards (0 is the Top) , 5 is the Column at the Bottom
      * @param newValue New Color Value

@@ -209,7 +209,7 @@ public class GameControl {
         }
     }
 
-    private byte getColumn(GameField gameField,byte row) {
+    public byte getColumn(GameField gameField,byte row) {
         return getPossibleNextMoves(gameField).stream().filter(position -> position.row() == row).findFirst().map(GameField.FieldPosition::column).orElse((byte) -1);
     }
 
@@ -296,8 +296,8 @@ public class GameControl {
 
 
         /**
-         * @param fieldPosition Position of field on GameField
-         * @return The Index of the field in direction starting at, originField = 0
+         * @param fieldPosition Position of gameField on GameField
+         * @return The Index of the gameField in direction starting at, originField = 0
          */
         public int getFieldIndex(GameField.FieldPosition fieldPosition) {
             if (fieldPosition.equals(originField)) return 0;
@@ -398,6 +398,37 @@ public class GameControl {
         return getPossibleNextMoves(gameField).contains(new GameField.FieldPosition(col, row));
     }
 
+    public GameField.HistoryMove getHistoryMoveBot(GameField gameField, GameField.FieldPosition lastMove) {
+        List<PossibleWinLine> winLinesToProhibit = getRequiredLineMoves(gameField, GameField.ICSValue.RED);
+        List<GameField.FieldPosition> badMoves = getBadMoves(gameField, GameField.ICSValue.RED);
+        AlgorithmMove enemyCurrenWinLinesMove = filterMoves(gameField,  getCurrentPossibleWinLines(gameField, (byte) 1, GameField.ICSValue.RED).stream()
+                .sorted(Comparator.comparingInt(winLine -> winLine.getNeededMovesToFillLine(gameField).size()))
+                .collect(Collectors.toList()), badMoves);
+        AlgorithmMove prohibitMove = null;
+        AlgorithmMove currentSmartMove = getPossibleSmartMove(gameField, GameField.ICSValue.RED);
+        if (winLinesToProhibit != null) {
+            prohibitMove = filterProhibitMoves(gameField, winLinesToProhibit.stream().filter(possibleWinLine -> possibleWinLine.neededFieldsForLine() <= 2).sorted(Comparator.comparingInt((PossibleWinLine value) -> value.getNeededMovesToFillLine(gameField).size()).thenComparing(PossibleWinLine::direction)).collect(Collectors.toList()), badMoves);
+        }
+        return new GameField.HistoryMove(gameField,currentSmartMove.position,lastMove,badMoves,prohibitMove,currentSmartMove != null ? currentSmartMove.targetWinLine:null,currentSmartMove.neededMovesToWinAfter,enemyCurrenWinLinesMove != null ? enemyCurrenWinLinesMove.neededMovesToWinAfter() : -1,System.currentTimeMillis());
+
+    }
+
+    public GameField.HistoryMove getHistoryMovePlayer(GameField gameField, GameField.FieldPosition currentMove, GameField.FieldPosition lastMove) {
+        List<PossibleWinLine> winLinesToProhibit = getRequiredLineMoves(gameField, GameField.ICSValue.RED);
+        List<GameField.FieldPosition> badMoves = getBadMoves(gameField, GameField.ICSValue.RED);
+        AlgorithmMove currenWinLinesMove = filterMoves(gameField,  getCurrentPossibleWinLines(gameField, (byte) 1, GameField.ICSValue.YELLOW).stream()
+                .sorted(Comparator.comparingInt(winLine -> winLine.getNeededMovesToFillLine(gameField).size()))
+                .collect(Collectors.toList()), badMoves);
+        AlgorithmMove enemyCurrenWinLinesMove = filterMoves(gameField,  getCurrentPossibleWinLines(gameField, (byte) 1, GameField.ICSValue.RED).stream()
+                .sorted(Comparator.comparingInt(winLine -> winLine.getNeededMovesToFillLine(gameField).size()))
+                .collect(Collectors.toList()), badMoves);
+        AlgorithmMove prohibitMove = null;
+        if (winLinesToProhibit != null) {
+            prohibitMove = filterProhibitMoves(gameField, winLinesToProhibit.stream().filter(possibleWinLine -> possibleWinLine.neededFieldsForLine() <= 2).sorted(Comparator.comparingInt((PossibleWinLine value) -> value.getNeededMovesToFillLine(gameField).size()).thenComparing(PossibleWinLine::direction)).collect(Collectors.toList()), badMoves);
+        }
+        return new GameField.HistoryMove(gameField,currentMove,lastMove,badMoves,prohibitMove,currenWinLinesMove != null ? currenWinLinesMove.targetWinLine:null,currenWinLinesMove != null ? currenWinLinesMove.neededMovesToWinAfter() : -1,enemyCurrenWinLinesMove != null ? enemyCurrenWinLinesMove.neededMovesToWinAfter() : -1,System.currentTimeMillis());
+    }
+
 
     /**
      * Smart Moves from the Algorithm
@@ -405,7 +436,7 @@ public class GameControl {
      * @param gameField The GameField the Algorithm uses
      * @return Null if no Move was Found or the Next AlgorithmMove that Should be done associated with The Line the Bot wants to Fill to Win
      */
-    private AlgorithmMove getPossibleSmartMove(GameField gameField, GameField.ICSValue moveColor) {
+    public AlgorithmMove getPossibleSmartMove(GameField gameField, GameField.ICSValue moveColor) {
 
         // MIN-MAX Algorithm
         List<PossibleWinLine> botCurrentWinLines = getCurrentPossibleWinLines(gameField, (byte) 1, moveColor).stream()
@@ -499,7 +530,7 @@ public class GameControl {
      * @return Null if no Move was Found or the Next Move that Should be done associated with The Line the Bot wants to Fill
      */
     private static AlgorithmMove filterNewMoves(GameField gameField, List<PossibleWinLine> botCurrentWinLines, List<GameField.FieldPosition> badMoves) {
-        if (!botCurrentWinLines.isEmpty()) {
+        if (botCurrentWinLines != null || !botCurrentWinLines.isEmpty()) {
             while (!botCurrentWinLines.isEmpty()) {
                 GameControl.PossibleWinLine randomLine = pickRandomFromSmallestGroup(botCurrentWinLines, gameField);
                 for (GameField.FieldPosition nextField : randomLine.getNextFields()) {
@@ -533,7 +564,7 @@ public class GameControl {
      * @return Null if no Move was Found or the Next Move that Should be done associated with The Line the Bot wants to Fill
      */
     private static AlgorithmMove filterMoves(GameField gameField, List<PossibleWinLine> botCurrentWinLines, List<GameField.FieldPosition> badMoves) {
-        if (!botCurrentWinLines.isEmpty()) {
+        if (botCurrentWinLines != null || !botCurrentWinLines.isEmpty()) {
             for (PossibleWinLine botCurrentWinLine : botCurrentWinLines) {
                 for (GameField.FieldPosition nextField : botCurrentWinLine.getNextFields()) {
                     Optional<GameField.FieldPosition> nextNeededMoveForLine = nextField.getNeededMovesToFillField(gameField).map(fieldPositions -> {
@@ -563,7 +594,7 @@ public class GameControl {
      * @return Null if no Move was Found or the Next Move that Should be done associated with The Line the Bot wants to Fill
      */
     private static AlgorithmMove filterNoWinMoves(List<GameField.FieldPosition> botCurrentPossibleMoves, List<GameField.FieldPosition> badMoves) {
-        if (!botCurrentPossibleMoves.isEmpty()) {
+        if (botCurrentPossibleMoves != null || !botCurrentPossibleMoves.isEmpty()) {
             for (GameField.FieldPosition nextField : botCurrentPossibleMoves) {
                 if (!badMoves.contains(nextField)) {
                     return new AlgorithmMove(nextField, null, -1);
@@ -580,7 +611,7 @@ public class GameControl {
      * @return Null if no Move was Found or the Next Move that Should be done associated with The Line the Bot wants to Fill
      */
     private static AlgorithmMove filterProhibitMoves(GameField gameField, List<PossibleWinLine> botCurrentWinLines, List<GameField.FieldPosition> badMoves) {
-        if (!botCurrentWinLines.isEmpty()) {
+        if (botCurrentWinLines != null || !botCurrentWinLines.isEmpty()) {
             for (PossibleWinLine botCurrentWinLine : botCurrentWinLines) {
                 for (GameField.FieldPosition nextField : botCurrentWinLine.getNextFields()) {
                     Optional<Queue<GameField.FieldPosition>> nextNeededMovesForField = nextField.getNeededMovesToFillField(gameField);
@@ -644,7 +675,7 @@ public class GameControl {
     private List<GameField.FieldPosition> oldgetBadMoves(GameField gameField, GameField.ICSValue enemyColor) {
         return getCurrentPossibleWinLines(gameField, (byte) 2, enemyColor).stream()
                 .flatMap(winLine -> winLine.getNextFields(true).stream())
-                .map(field -> new GameField.FieldPosition(field.row(), (byte) (field.column() + 1))) // One field under it
+                .map(field -> new GameField.FieldPosition(field.row(), (byte) (field.column() + 1))) // One gameField under it
                 .collect(Collectors.toList());
     }
 
@@ -654,7 +685,7 @@ public class GameControl {
     private List<GameField.FieldPosition> getInstantEnemyWinMoves(GameField gameField, GameField.ICSValue enemyColor) {
         return getCurrentPossibleWinLines(gameField, (byte) 3, enemyColor).stream()
                 .flatMap(winLine -> winLine.getNextFields(true).stream())
-                .map(field -> new GameField.FieldPosition(field.row(), (byte) (field.column() + 1))) // One field under it
+                .map(field -> new GameField.FieldPosition(field.row(), (byte) (field.column() + 1))) // One gameField under it
                 .collect(Collectors.toList());
     }
 
@@ -688,7 +719,7 @@ public class GameControl {
                     fieldPositions.removeIf(nextField -> !nextField.isAside(winLine.associatedFields));
                     return fieldPositions.stream();
                 })
-                .map(field -> new GameField.FieldPosition(field.row(), (byte) (field.column() + 1))) // One field under it
+                .map(field -> new GameField.FieldPosition(field.row(), (byte) (field.column() + 1))) // One gameField under it
                 .collect(Collectors.toList());
 
 
