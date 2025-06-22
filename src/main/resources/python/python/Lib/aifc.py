@@ -21,7 +21,7 @@ An AIFF-C file has the following structure.
 An AIFF file has the string "AIFF" instead of "AIFC".
 
 A chunk consists of an identifier (4 bytes) followed by a size (4 bytes,
-big endian order), followed by the data.  The size field does not include
+big endian order), followed by the data.  The size gameField does not include
 the size of the 8 byte header.
 
 The following chunk types are recognized.

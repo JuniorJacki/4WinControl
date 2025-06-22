@@ -372,7 +372,7 @@ def _rank(data, /, *, key=None, reverse=False, ties='average', start=1) -> list[
 
     It is possible to rank the data in reverse order so that the
     highest value has rank 1.  Also, a key-function can extract
-    the field to be ranked:
+    the gameField to be ranked:
 
         >>> goals = [('eagles', 45), ('bears', 48), ('lions', 44)]
         >>> _rank(goals, key=itemgetter(1), reverse=True)

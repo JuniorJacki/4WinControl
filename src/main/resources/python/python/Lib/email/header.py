@@ -191,9 +191,9 @@ class Header:
         subsequent .append() calls.
 
         The maximum line length can be specified explicitly via maxlinelen. For
-        splitting the first line to a shorter value (to account for the field
+        splitting the first line to a shorter value (to account for the gameField
         header which isn't included in s, e.g. `Subject') pass in the name of
-        the field in header_name.  The default maxlinelen is 78 as recommended
+        the gameField in header_name.  The default maxlinelen is 78 as recommended
         by RFC 2822.
 
         continuation_ws must be RFC 2822 compliant folding whitespace (usually
@@ -314,7 +314,7 @@ class Header:
         email clients, and as header strings can only contain a subset of
         7-bit ASCII, care must be taken to properly convert and encode (with
         Base64 or quoted-printable) header strings.  In addition, there is a
-        75-character length limit on any given encoded header field, so
+        75-character length limit on any given encoded header gameField, so
         line-wrapping must be performed, even with double-byte character sets.
 
         Optional maxlinelen specifies the maximum length of each generated
@@ -438,7 +438,7 @@ class _ValueFormatter:
     def feed(self, fws, string, charset):
         # If the charset has no header encoding (i.e. it is an ASCII encoding)
         # then we must split the header at the "highest level syntactic break"
-        # possible. Note that we don't have a lot of smarts about field
+        # possible. Note that we don't have a lot of smarts about gameField
         # syntax; we just try to break on semi-colons, then commas, then
         # whitespace.  Eventually, this should be pluggable.
         if charset.header_encoding is None:

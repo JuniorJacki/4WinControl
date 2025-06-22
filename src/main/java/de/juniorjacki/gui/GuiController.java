@@ -248,7 +248,9 @@ public class GuiController extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:
 
-        connectHub();
+        new Thread(() -> {
+            connectHub();
+        }).start();
 
         new Thread(() -> {
             Hub hub = HubController.Instance.getHub("Hub 10");
@@ -274,7 +276,9 @@ public class GuiController extends javax.swing.JFrame {
     }
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {
-        connectHub();
+        new Thread(() -> {
+            connectHub();
+        }).start();
 
         /*
         new Thread(() -> {

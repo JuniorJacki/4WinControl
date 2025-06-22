@@ -153,7 +153,7 @@ def parse(fp=None, environ=os.environ, keep_blank_values=0,
     if fp is None:
         fp = sys.stdin
 
-    # field keys and values (except for files) are returned as strings
+    # gameField keys and values (except for files) are returned as strings
     # an encoding is required to decode the bytes read from self.fp
     if hasattr(fp,'encoding'):
         encoding = fp.encoding
@@ -205,8 +205,8 @@ def parse_multipart(fp, pdict, encoding="utf-8", errors="replace", separator='&'
     encoding, errors: request encoding and error handler, passed to
         FieldStorage
 
-    Returns a dictionary just like parse_qs(): keys are the field names, each
-    value is a list of values for that field. For non-file fields, the value
+    Returns a dictionary just like parse_qs(): keys are the gameField names, each
+    value is a list of values for that gameField. For non-file fields, the value
     is a list of strings.
     """
     # RFC 2046, Section 5.1 : The "multipart" boundary delimiters are always
@@ -256,7 +256,7 @@ def parse_header(line):
     return key, pdict
 
 
-# Classes for field storage
+# Classes for gameField storage
 # =========================
 
 class MiniFieldStorage:
@@ -274,7 +274,7 @@ class MiniFieldStorage:
     headers = {}
 
     def __init__(self, name, value):
-        """Constructor from field name and value."""
+        """Constructor from gameField name and value."""
         self.name = name
         self.value = value
         # self.file = StringIO(value)
@@ -290,12 +290,12 @@ class FieldStorage:
 
     This class provides naming, typing, files stored on disk, and
     more.  At the top level, it is accessible like a dictionary, whose
-    keys are the field names.  (Note: None can occur as a field name.)
+    keys are the gameField names.  (Note: None can occur as a gameField name.)
     The items are either a Python list (if there's multiple values) or
     another FieldStorage or MiniFieldStorage object.  If it's a single
     object, it has the following attributes:
 
-    name: the field name, if specified; otherwise None
+    name: the gameField name, if specified; otherwise None
 
     filename: the filename, if specified; otherwise None; this is the
         client side filename, *not* the file name on which it is

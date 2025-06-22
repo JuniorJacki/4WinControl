@@ -21,7 +21,7 @@ of the header is as follows.
         +---------------+
 
 The magic word consists of the 4 characters '.snd'.  Apart from the
-info field, all header fields are 4 bytes in size.  They are all
+info gameField, all header fields are 4 bytes in size.  They are all
 32-bit unsigned integers encoded in big-endian byte order.
 
 The header size really gives the start of the data.
@@ -29,8 +29,8 @@ The data size is the physical size of the data.  From the other
 parameters the number of frames can be calculated.
 The encoding gives the way in which audio samples are encoded.
 Possible values are listed below.
-The info field currently consists of an ASCII string giving a
-human-readable description of the audio file.  The info field is
+The info gameField currently consists of an ASCII string giving a
+human-readable description of the audio file.  The info gameField is
 padded with NUL bytes to the header size.
 
 Usage.

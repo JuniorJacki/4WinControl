@@ -80,7 +80,7 @@ async def main():
             command = sys.stdin.readline().strip()
             if not command:  # Handle EOF or empty input
                 continue
-            if command == "bye":
+            if command == "bye::":
                 await send(command)
                 break
             await send(command)

@@ -506,7 +506,7 @@ class FeedParser:
                     defect = errors.MisplacedEnvelopeHeaderDefect(line)
                     self._cur.defects.append(defect)
                     continue
-            # Split the line on the colon separating field name from value.
+            # Split the line on the colon separating gameField name from value.
             # There will always be a colon, because if there wasn't the part of
             # the parser that calls us would have started parsing the body.
             i = line.find(':')

@@ -1,18 +1,82 @@
+1
+Starting Single Player Game on Hub Hub 10
 Setting up Python environment...
 Resource URL for connector.py: jar:file:/D:/B%c3%bcro/Schule/MPG/Q1/IFPK/4WinLogic/out/artifacts/4WinLogic_jar/4WinLogic.jar!/connector.py
 Resource URL for python/python/python.exe: jar:file:/D:/B%c3%bcro/Schule/MPG/Q1/IFPK/4WinLogic/out/artifacts/4WinLogic_jar/4WinLogic.jar!/python/python/python.exe
 Extracting Python environment to: D:\Büro\Schule\MPG\Q1\IFPK\4WinLogic\out\artifacts\4WinLogic_jar\python_env
-Connection has been initialized
-HUB: Sent at 1748804206.703944: Command ID 1, Payload b''
-HUB: crdy
-Send: ini
-HUB: rdy:pss
-HUB: rdy:ins
-HUB: rdy:
-HUB: rdy:fwd:
-HUB: rdy:rev:
-HUB: rdy:sto:
-HUB: rdy:col:7
-Color: 7
-HUB: rdy:chl:198
-CHL: 198
+Initialisiere LoadingScreen... [Thread: AWT-EventQueue-0]
+Verbindung nicht möglich: cnf
+Hub: Hub 10has been Disconnected!
+1
+Starting Single Player Game on Hub Hub 10
+Setting up Python environment...
+Resource URL for connector.py: jar:file:/D:/B%c3%bcro/Schule/MPG/Q1/IFPK/4WinLogic/out/artifacts/4WinLogic_jar/4WinLogic.jar!/connector.py
+Resource URL for python/python/python.exe: jar:file:/D:/B%c3%bcro/Schule/MPG/Q1/IFPK/4WinLogic/out/artifacts/4WinLogic_jar/4WinLogic.jar!/python/python/python.exe
+Extracting Python environment to: D:\Büro\Schule\MPG\Q1\IFPK\4WinLogic\out\artifacts\4WinLogic_jar\python_env
+Initialisiere LoadingScreen... [Thread: AWT-EventQueue-0]
+Verbindung hergestellt
+Send initiation Command
+Send response refresh Command
+ret:ins:
+Listenner Thread started
+Sending: res::
+Did not receive a request Response Sending Additional Data request
+Sending: dat::
+HUB: ret:res:53
+Hub did not respond to Cmd after 514 ms
+Sending: dat::
+Received Command Response: ret:res:53
+Index53
+Move to distance 92 row 0
+Sending: mtd:92:
+Did not receive a request Response Sending Additional Data request
+Sending: dat::
+Hub did not respond to Cmd after 507 ms
+HUB: ret:mtd:92
+Sending: dat::
+Received Command Response: ret:mtd:92
+Sending: col:5:
+Did not receive a request Response Sending Additional Data request
+Sending: dat::
+Hub did not respond to Cmd after 507 ms
+Sending: dat::
+Hub did not respond to Cmd after 1014 ms
+Sending: dat::
+Hub did not respond to Cmd after 1521 ms
+HUB: ret:col:31
+Sending: dat::
+Received Command Response: ret:col:31
+Scanned Blue Scann Again 31
+Sending: res::
+Did not receive a request Response Sending Additional Data request
+Sending: dat::
+Hub did not respond to Cmd after 500 ms
+HUB: ret:res:53
+Sending: dat::
+Received Command Response: ret:res:53
+Index53
+Move to distance 92 row 0
+Sending: mtd:92:
+Did not receive a request Response Sending Additional Data request
+Sending: dat::
+Hub did not respond to Cmd after 507 ms
+HUB: ret:mtd:92
+Sending: dat::
+Received Command Response: ret:mtd:92
+Sending: col:5:
+Did not receive a request Response Sending Additional Data request
+Sending: dat::
+Hub did not respond to Cmd after 501 ms
+Sending: dat::
+Hub did not respond to Cmd after 1007 ms
+Sending: dat::
+Hub did not respond to Cmd after 1513 ms
+HUB: ret:col:48
+Sending: dat::
+Received Command Response: ret:col:48
+Scanned FieldPosition[row=0, column=5] Value 48
+Sending: res::
+Did not receive a request Response Sending Additional Data request
+Sending: dat::
+Hub did not respond to Cmd after 514 ms
+Hub: Hub 10has been Disconnected!

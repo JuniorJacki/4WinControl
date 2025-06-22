@@ -498,13 +498,13 @@ class ZipInfo (object):
             return self.filename.encode('utf-8'), self.flag_bits | _MASK_UTF_FILENAME
 
     def _decodeExtra(self, filename_crc):
-        # Try to decode the extra field.
+        # Try to decode the extra gameField.
         extra = self.extra
         unpack = struct.unpack
         while len(extra) >= 4:
             tp, ln = unpack('<HH', extra[:4])
             if ln+4 > len(extra):
-                raise BadZipFile("Corrupt extra field %04x (size=%d)" % (tp, ln))
+                raise BadZipFile("Corrupt extra gameField %04x (size=%d)" % (tp, ln))
             if tp == 0x0001:
                 data = extra[4:ln+4]
                 # ZIP64 extension (large files and/or large archives)
@@ -521,7 +521,7 @@ class ZipInfo (object):
                         field = "Header offset"
                         self.header_offset, = unpack('<Q', data[:8])
                 except struct.error:
-                    raise BadZipFile(f"Corrupt zip64 extra field. "
+                    raise BadZipFile(f"Corrupt zip64 extra gameField. "
                                      f"{field} not found.") from None
             elif tp == 0x7075:
                 data = extra[4:ln+4]
@@ -534,11 +534,11 @@ class ZipInfo (object):
                             self.filename = _sanitize_filename(up_unicode_name)
                         else:
                             import warnings
-                            warnings.warn("Empty unicode path extra field (0x7075)", stacklevel=2)
+                            warnings.warn("Empty unicode path extra gameField (0x7075)", stacklevel=2)
                 except struct.error as e:
-                    raise BadZipFile("Corrupt unicode path extra field (0x7075)") from e
+                    raise BadZipFile("Corrupt unicode path extra gameField (0x7075)") from e
                 except UnicodeDecodeError as e:
-                    raise BadZipFile('Corrupt unicode path extra field (0x7075): invalid utf-8 bytes') from e
+                    raise BadZipFile('Corrupt unicode path extra gameField (0x7075): invalid utf-8 bytes') from e
 
             extra = extra[ln+4:]
 
@@ -1999,7 +1999,7 @@ class ZipFile:
             extra_data = zinfo.extra
             min_version = 0
             if extra:
-                # Append a ZIP64 field to the extra's
+                # Append a ZIP64 gameField to the extra's
                 extra_data = _strip_extra(extra_data, (1,))
                 extra_data = struct.pack(
                     '<HH' + 'Q'*len(extra),

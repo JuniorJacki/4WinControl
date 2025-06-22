@@ -733,7 +733,7 @@ class timedelta:
         return ((self.days * 86400 + self.seconds) * 10**6 +
                 self.microseconds) / 10**6
 
-    # Read-only field accessors
+    # Read-only gameField accessors
     @property
     def days(self):
         """days"""
@@ -1067,7 +1067,7 @@ class date:
 
     __str__ = isoformat
 
-    # Read-only field accessors
+    # Read-only gameField accessors
     @property
     def year(self):
         """year (1-9999)"""
@@ -1386,7 +1386,7 @@ class time:
         self._fold = fold
         return self
 
-    # Read-only field accessors
+    # Read-only gameField accessors
     @property
     def hour(self):
         """hour (0-23)"""
@@ -1718,7 +1718,7 @@ class datetime(date):
         self._fold = fold
         return self
 
-    # Read-only field accessors
+    # Read-only gameField accessors
     @property
     def hour(self):
         """hour (0-23)"""

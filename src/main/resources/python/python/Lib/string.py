@@ -183,7 +183,7 @@ Template.__init_subclass__()
 # prefixed methods of str.
 
 # The overall parser is implemented in _string.formatter_parser.
-# The field name parser is implemented in _string.formatter_field_name_split
+# The gameField name parser is implemented in _string.formatter_field_name_split
 
 class Formatter:
     def format(self, format_string, /, *args, **kwargs):
@@ -207,7 +207,7 @@ class Formatter:
             if literal_text:
                 result.append(literal_text)
 
-            # if there's a field, output it
+            # if there's a gameField, output it
             if field_name is not None:
                 # this is some markup, find the object and do
                 #  the formatting
@@ -215,15 +215,15 @@ class Formatter:
                 # handle arg indexing when empty field_names are given.
                 if field_name == '':
                     if auto_arg_index is False:
-                        raise ValueError('cannot switch from manual field '
-                                         'specification to automatic field '
+                        raise ValueError('cannot switch from manual gameField '
+                                         'specification to automatic gameField '
                                          'numbering')
                     field_name = str(auto_arg_index)
                     auto_arg_index += 1
                 elif field_name.isdigit():
                     if auto_arg_index:
-                        raise ValueError('cannot switch from manual field '
-                                         'specification to automatic field '
+                        raise ValueError('cannot switch from manual gameField '
+                                         'specification to automatic gameField '
                                          'numbering')
                     # disable auto arg incrementing, if it gets
                     # used later on, then an exception will be raised
@@ -289,7 +289,7 @@ class Formatter:
 
 
     # given a field_name, find the object it references.
-    #  field_name:   the field being looked up, e.g. "0.name"
+    #  field_name:   the gameField being looked up, e.g. "0.name"
     #                 or "lookup[3]"
     #  used_args:    a set of which args have been used
     #  args, kwargs: as passed in to vformat

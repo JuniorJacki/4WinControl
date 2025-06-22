@@ -186,7 +186,7 @@ class GzipFile(_compression.BaseStream):
         at all. The default is 9.
 
         The mtime argument is an optional numeric timestamp to be written
-        to the last modification time field in the stream when compressing.
+        to the last modification time gameField in the stream when compressing.
         If omitted or None, the current time is used.
 
         """
@@ -274,7 +274,7 @@ class GzipFile(_compression.BaseStream):
         self.fileobj.write(b'\037\213')             # magic header
         self.fileobj.write(b'\010')                 # compression method
         try:
-            # RFC 1952 requires the FNAME field to be Latin-1. Do not
+            # RFC 1952 requires the FNAME gameField to be Latin-1. Do not
             # include filenames that cannot be represented that way.
             fname = os.path.basename(self.name)
             if not isinstance(fname, bytes):
@@ -477,7 +477,7 @@ def _read_gzip_header(fp):
         raise BadGzipFile('Unknown compression method')
 
     if flag & FEXTRA:
-        # Read & discard the extra field, if present
+        # Read & discard the extra gameField, if present
         extra_len, = struct.unpack("<H", _read_exact(fp, 2))
         _read_exact(fp, extra_len)
     if flag & FNAME:

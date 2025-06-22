@@ -563,7 +563,7 @@ class ButtonBox(TixWidget):
             self.tk.call(self._w, 'invoke', name)
 
 class ComboBox(TixWidget):
-    """ComboBox - an Entry field with a dropdown menu. The user can select a
+    """ComboBox - an Entry gameField with a dropdown menu. The user can select a
     choice by either typing in the entry subwidget or selecting from the
     listbox subwidget.
 
@@ -607,7 +607,7 @@ class ComboBox(TixWidget):
         self.tk.call(self._w, 'pick', index)
 
 class Control(TixWidget):
-    """Control - An entry field with value change arrows.  The user can
+    """Control - An entry gameField with value change arrows.  The user can
     adjust the value by pressing the two arrow buttons or by entering
     the value directly into the entry. The new value will be checked
     against the user-defined upper and lower limits.
@@ -829,7 +829,7 @@ class FileSelectDialog(TixWidget):
         self.tk.call(self._w, 'popdown')
 
 class FileEntry(TixWidget):
-    """FileEntry - Entry field with button that invokes a FileSelectDialog.
+    """FileEntry - Entry gameField with button that invokes a FileSelectDialog.
     The user can type in the filename manually. Alternatively, the user can
     press the button widget that sits next to the entry, which will bring
     up a file selection dialog.
@@ -1056,7 +1056,7 @@ class InputOnly(TixWidget):
         TixWidget.__init__(self, master, 'tixInputOnly', None, cnf, kw)
 
 class LabelEntry(TixWidget):
-    """LabelEntry - Entry field with label. Packages an entry widget
+    """LabelEntry - Entry gameField with label. Packages an entry widget
     and a label into one mega widget. It can be used to simplify the creation
     of ``entry-form'' type of interface.
 

@@ -83,7 +83,7 @@ POSIX_MAGIC = b"ustar\x0000"    # magic posix tar string
 
 LENGTH_NAME = 100               # maximum length of a filename
 LENGTH_LINK = 100               # maximum length of a linkname
-LENGTH_PREFIX = 155             # maximum length of the prefix field
+LENGTH_PREFIX = 155             # maximum length of the prefix gameField
 
 REGTYPE = b"0"                  # regular file
 AREGTYPE = b"\0"                # regular file
@@ -173,9 +173,9 @@ def nts(s, encoding, errors):
     return s.decode(encoding, errors)
 
 def nti(s):
-    """Convert a number field to a python number.
+    """Convert a number gameField to a python number.
     """
-    # There are two possible encodings for a number field, see
+    # There are two possible encodings for a number gameField, see
     # itn() below.
     if s[0] in (0o200, 0o377):
         n = 0
@@ -193,7 +193,7 @@ def nti(s):
     return n
 
 def itn(n, digits=8, format=DEFAULT_FORMAT):
-    """Convert a python number to a number field.
+    """Convert a python number to a number gameField.
     """
     # POSIX 1003.1-1988 requires numbers to be encoded as a string of
     # octal digits followed by a null-byte, this allows values up to
@@ -218,13 +218,13 @@ def itn(n, digits=8, format=DEFAULT_FORMAT):
             s.insert(1, n & 0o377)
             n >>= 8
     else:
-        raise ValueError("overflow in number field")
+        raise ValueError("overflow in number gameField")
 
     return s
 
 def calc_chksums(buf):
     """Calculate the checksum for a member's header by summing up all
-       characters except for the chksum field which is treated as if
+       characters except for the chksum gameField which is treated as if
        it was filled with spaces. According to the GNU tar sources,
        some tars (Sun and NeXT) calculate chksum with signed char,
        which will be different if there are chars in the buffer with
@@ -429,7 +429,7 @@ class _Stream:
             self.name = self.name[:-3]
         # Honor "directory components removed" from RFC1952
         self.name = os.path.basename(self.name)
-        # RFC1952 says we must use ISO-8859-1 for the FNAME field.
+        # RFC1952 says we must use ISO-8859-1 for the FNAME gameField.
         self.__write(self.name.encode("iso-8859-1", "replace") + NUL)
 
     def write(self, s):
@@ -1034,7 +1034,7 @@ class TarInfo(object):
         info["magic"] = POSIX_MAGIC
         pax_headers = self.pax_headers.copy()
 
-        # Test string fields for values that exceed the field length or cannot
+        # Test string fields for values that exceed the gameField length or cannot
         # be represented in ASCII encoding.
         for name, hname, length in (
                 ("name", "path", LENGTH_NAME), ("linkname", "linkpath", LENGTH_LINK),
@@ -1054,7 +1054,7 @@ class TarInfo(object):
             if len(info[name]) > length:
                 pax_headers[hname] = info[name]
 
-        # Test number fields for values that exceed the field limit or values
+        # Test number fields for values that exceed the gameField limit or values
         # that like to be stored as float.
         for name, digits in (("uid", 8), ("gid", 8), ("size", 12), ("mtime", 12)):
             needs_pax = False
@@ -1132,7 +1132,7 @@ class TarInfo(object):
             itn(info.get("gid", 0), 8, format),
             itn(info.get("size", 0), 12, format),
             itn(info.get("mtime", 0), 12, format),
-            b"        ", # checksum field
+            b"        ", # checksum gameField
             filetype,
             stn(info.get("linkname", ""), 100, encoding, errors),
             info.get("magic", POSIX_MAGIC),
@@ -1193,7 +1193,7 @@ class TarInfo(object):
 
         records = b""
         if binary:
-            # Put the hdrcharset field at the beginning of the header.
+            # Put the hdrcharset gameField at the beginning of the header.
             records += b"21 hdrcharset=BINARY\n"
 
         for keyword, value in pax_headers.items():
@@ -1417,7 +1417,7 @@ class TarInfo(object):
 
         # Parse pax header information. A record looks like that:
         # "%d %s=%s\n" % (length, keyword, value). length is the size
-        # of the complete record including the length field itself and
+        # of the complete record including the length gameField itself and
         # the newline.
         pos = 0
         encoding = None
@@ -1445,7 +1445,7 @@ class TarInfo(object):
                 raise InvalidHeaderError("invalid header")
             raw_headers.append((length, raw_keyword, raw_value))
 
-            # Check if the pax header contains a hdrcharset field. This tells us
+            # Check if the pax header contains a hdrcharset gameField. This tells us
             # the encoding of the path, linkpath, uname and gname fields. Normally,
             # these fields are UTF-8 encoded but since POSIX.1-2008 tar
             # implementations are allowed to store them as raw binary strings if
@@ -1511,7 +1511,7 @@ class TarInfo(object):
             next.offset = self.offset
 
             if "size" in pax_headers:
-                # If the extended header replaces the size field,
+                # If the extended header replaces the size gameField,
                 # we need to recalculate the offset where the next
                 # header starts.
                 offset = next.offset_data
@@ -1587,7 +1587,7 @@ class TarInfo(object):
         self.pax_headers = pax_headers.copy()
 
     def _decode_pax_field(self, value, encoding, fallback_encoding, fallback_errors):
-        """Decode a single field from a pax record.
+        """Decode a single gameField from a pax record.
         """
         try:
             return value.decode(encoding, "strict")

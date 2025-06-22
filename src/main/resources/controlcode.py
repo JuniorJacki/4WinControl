@@ -5,6 +5,7 @@ from pybricks.pupdevices import ColorSensor,UltrasonicSensor
 from pybricks.hubs import InventorHub
 from pybricks.parameters import Stop
 
+
 # Standard MicroPython modules
 import usys
 
@@ -15,10 +16,10 @@ motor = Motor(Port.D)
 motor1 = Motor(Port.C)
 
 hub = InventorHub()
-usens = UltrasonicSensor(Port.A)
-csens = ColorSensor(Port.B)
-smotor = Motor(Port.F)
-sradmotor = Motor(Port.E)
+usens = UltrasonicSensor(Port.F)
+csens = ColorSensor(Port.E)
+smotor = Motor(Port.A)
+sradmotor = Motor(Port.B)
 
 # Settings
 fullSpeed = 100
@@ -49,7 +50,7 @@ def scanField(index):
     return col
 
 
-def fahrzu(row,ff):
+def fahrzu(row,ff,minSpeed):
     wanted = 55
     if (row == 0): wanted = 92
     if (row == 1): wanted = 120
@@ -57,20 +58,29 @@ def fahrzu(row,ff):
     if (row == 3): wanted = 179
     if (row == 4): wanted = 210
     if (row == 5): wanted = 231
-    if (row == 6): wanted = 280
+    if (row == 6): wanted = 260
+
+    fahrzuDist(wanted,ff,minSpeed)
+
+def fahrzuDist(dist,ff,minSpeed):
+    wanted = dist
 
     dc = 0
     while True:
         distance = usens.distance()
-
-        if row == 6 and distance > 260 and load < 350:
-            movebrake()
-            break
         load = motor1.load() + motor.load()
         if load > 0:
             load = 0
-        speed = fullSpeed - 30 - ((30/210)*load)
-        #print("R:",row,wanted,"±",ff,":",speed ,":",load,":"," -> ",distance)
+
+        speed = fullSpeed + (minSpeed-100) - ((-(minSpeed-100)/210)*load)
+        #print("R:",wanted,"±",ff,":",speed ,":",load,":"," -> ",distance)
+
+
+        if distance > 255 and dist > 250 and load < 360:
+            movebrake()
+            #print("stalled")
+            break
+
 
         if (distance -ff) < wanted and (distance +ff) > wanted:
             #print(wanted,":",distance)
@@ -93,13 +103,26 @@ def fahrzu(row,ff):
                 dc = speed
         wait(10)
 
-def shukle():
+def shukleUnFixed():
     move(70)
-    wait(200)
+    wait(100)
     movebrake()
     move(-70)
     wait(200)
     movebrake()
+    move(70)
+    wait(100)
+    movebrake()
+
+def shukle(distance,ff):
+    move(70)
+    wait(100)
+    movebrake()
+    fahrzuDist(distance,ff,50)
+    move(-70)
+    wait(100)
+    movebrake()
+    fahrzuDist(distance,ff,50)
 
 def checkAusrichtung():
     movebrake()
@@ -113,63 +136,100 @@ def checkAusrichtung():
 ## Reset to Standard Position
 checkAusrichtung()
 
+def getArgs():
+    next_byte = usys.stdin.buffer.read(1)
+    args = ""
+    if next_byte == b':':
+        # Read argument until newline or end of input
+        arg_data = b""
+        while True:
+            byte = usys.stdin.buffer.read(1)
+            if byte == b'' or byte == b'\n' or byte == b':':
+                break
+            arg_data += byte
+        if arg_data:
+            arg_str = str(arg_data)[2:-1]  # Remove b' and ' (e.g., "b'5'" -> "5")
+            return arg_str.split('#') if '#' in arg_str else [arg_str] if arg_str else []
+
+def isArgEmpty(args,index):
+    if args == None: return True
+    return args[index] == b'' or args[index] == ''
+
+def isArgInt(args,index):
+    try:
+        if not isArgEmpty(args,index):
+            int(args[index])
+            return True
+    except:
+        return False
+    return False;
+
 while True:
     cmd = usys.stdin.buffer.read(3)
+    args = getArgs()
+    context = cmd
     if cmd == b"ini":
         context = b"ins:"
     #### Color Sensor Read Commands
-    elif cmd == b"co0":
-        context = b"co0:" + str(scanField(0))
-    elif cmd == b"co1":
-        context = b"co1:" + str(scanField(1))
-    elif cmd == b"co2":
-        context = b"co2:" + str(scanField(2))
-    elif cmd == b"co3":
-        context = b"co3:" + str(scanField(3))
-    elif cmd == b"co4":
-        context = b"co4:" + str(scanField(4))
-    elif cmd == b"co5":
-        context = b"co5:" + str(scanField(5))
+    elif cmd == b"col":
+        if isArgInt(args,0):
+            field = int(args[0])
+            if field <= 5 and field >= 0:
+                context = b"col:" + str(scanField(int(args[0])))
+            else:
+                context = b"col:err:" + "IndexErr"
+        else:
+            context = b"col:err:" + "ArgErr"
     #### Row Move Commands
-    elif cmd == b"ro0":
-        context = b"ro0:"
-        fahrzu(0,1)
-    elif cmd == b"ro1":
-        context = b"ro1:"
-        fahrzu(1,1)
-    elif cmd == b"ro2":
-        context = b"ro2:"
-        fahrzu(2,1)
-    elif cmd == b"ro3":
-        context = b"ro3:"
-        fahrzu(3,1)
-    elif cmd == b"ro4":
-        context = b"ro4:"
-        fahrzu(4,1)
-    elif cmd == b"ro5":
-        context = b"ro5:"
-        fahrzu(5,1)
-    elif cmd == b"ro6":
-        context = b"ro6:"
-        fahrzu(6,1)
+    elif cmd == b"row":
+        if isArgInt(args,0):
+            row = int(args[0])
+            if row <= 6 and row >= 0:
+                context = b"row:" + str(row)
+                fahrzu(int(row),1,70)
+            else:
+                context = b"row:err:" + "IndexErr"
+        else:
+            context = b"row:err:" + "ArgError"
+    elif cmd == b"mtd": # Move to Distance
+        if isArgInt(args,0):
+            if isArgInt(args,1) and isArgInt(args,2):
+                fahrzuDist(int(args[0]),int(args[1]),int(args[2]))
+            else:
+                fahrzuDist(int(args[0]),1,70)
+            context = b"mtd:" + str(args[0])
+        else:
+            context = b"row:err:" + "ArgError"
+    elif cmd == b"dst": # DisplayText
+        if not isArgEmpty(args,0):
+            hub.display.text(args[0])
+        else:
+            context = b"dst:err:" + "NoArgErr"
     #### Throw Commands
     elif cmd == b"thr":
         throw()
         context = b"thr:"
     #### Other
     elif cmd == b"shk":
-        shukle()
+        if isArgInt(args,0):
+            shukle(int(args[0]),1)
+            context = b"shk:fixed:"
+        else:
+            context = b"shk:unfixed:"
+            shukleUnFixed()
     elif cmd == b"res":
         context = b"res:" + str(checkAusrichtung())
     elif cmd == b"bye":
         break
+    elif cmd == b"dat":
+        context = None
     else:
-        context = cmd
-        continue
-    usys.stdout.buffer.write(b"ret:" + context)
-    wait(100)
+        context = cmd + ":err:NotFound"
+
+    if not context == None:
+        usys.stdout.buffer.write(b"ret:" + context)
+        wait(100)
     usys.stdout.flush()
-    usys.stdout.buffer.write(b"rdy")
 
 
 

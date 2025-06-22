@@ -223,7 +223,7 @@ class DebuggerGuiTest(unittest.TestCase):
         self.idb.get_stack.return_value = ([], 0)
         self.debugger.show_stack()
 
-        # Check that the newly created stackviewer has the test gui as a field.
+        # Check that the newly created stackviewer has the test gui as a gameField.
         self.assertEqual(self.debugger.stackviewer.gui, self.debugger)
         self.idb.get_stack.assert_called_once_with(test_frame, None)
 

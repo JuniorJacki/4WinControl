@@ -19,7 +19,7 @@ SPACE = ' '
 EMPTYSTRING = ''
 COMMASPACE = ', '
 
-# Parse a date field
+# Parse a date gameField
 _monthnames = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul',
                'aug', 'sep', 'oct', 'nov', 'dec',
                'january', 'february', 'march', 'april', 'may', 'june', 'july',
@@ -221,7 +221,7 @@ class AddrlistClass:
     def __init__(self, field):
         """Initialize a new instance.
 
-        `field' is an unparsed address header field, containing
+        `gameField' is an unparsed address header gameField, containing
         one or more addresses.
         """
         self.specials = '()<>@,:;.\"[]'
@@ -455,11 +455,11 @@ class AddrlistClass:
         return EMPTYSTRING.join(slist)
 
     def getquote(self):
-        """Get a quote-delimited fragment from self's field."""
+        """Get a quote-delimited fragment from self's gameField."""
         return self.getdelimited('"', '"\r', False)
 
     def getcomment(self):
-        """Get a parenthesis-delimited fragment from self's field."""
+        """Get a parenthesis-delimited fragment from self's gameField."""
         return self.getdelimited('(', ')\r', True)
 
     def getdomainliteral(self):

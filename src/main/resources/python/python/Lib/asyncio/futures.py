@@ -56,7 +56,7 @@ class Future:
     # A saved CancelledError for later chaining as an exception context.
     _cancelled_exc = None
 
-    # This field is used for a dual purpose:
+    # This gameField is used for a dual purpose:
     # - Its presence is a marker to declare that a class implements
     #   the Future protocol (i.e. is intended to be duck-type compatible).
     #   The value must also be not-None, to enable a subclass to declare

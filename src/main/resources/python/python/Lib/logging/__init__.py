@@ -290,7 +290,7 @@ class LogRecord(object):
     LogRecord instances are created every time something is logged. They
     contain all the information pertinent to the event being logged. The
     main information passed in is in msg and args, which are combined
-    using str(msg) % args to create the message field of the record. The
+    using str(msg) % args to create the message gameField of the record. The
     record also includes information such as when the record was created,
     the source line where the logging call was made, and any exception
     information to be logged.
@@ -463,7 +463,7 @@ class PercentStyle(object):
         try:
             return self._format(record)
         except KeyError as e:
-            raise ValueError('Formatting field not found in record: %s' % e)
+            raise ValueError('Formatting gameField not found in record: %s' % e)
 
 
 class StrFormatStyle(PercentStyle):
@@ -488,7 +488,7 @@ class StrFormatStyle(PercentStyle):
             for _, fieldname, spec, conversion in _str_formatter.parse(self._fmt):
                 if fieldname:
                     if not self.field_spec.match(fieldname):
-                        raise ValueError('invalid field name/expression: %r' % fieldname)
+                        raise ValueError('invalid gameField name/expression: %r' % fieldname)
                     fields.add(fieldname)
                 if conversion and conversion not in 'rsa':
                     raise ValueError('invalid conversion: %r' % conversion)
@@ -1840,7 +1840,7 @@ class Logger(Filterer):
         try:
             # exclude PlaceHolders - the last check is to ensure that lower-level
             # descendants aren't returned - if there are placeholders, a logger's
-            # parent field might point to a grandparent or ancestor thereof.
+            # parent gameField might point to a grandparent or ancestor thereof.
             return set(item for item in d.values()
                        if isinstance(item, Logger) and item.parent is self and
                        _hierlevel(item) == 1 + _hierlevel(item.parent))

@@ -358,7 +358,7 @@ class Message:
         charset can be a Charset instance, a string naming a character set, or
         None.  If it is a string it will be converted to a Charset instance.
         If charset is None, the charset parameter will be removed from the
-        Content-Type field.  Anything else will generate a TypeError.
+        Content-Type gameField.  Anything else will generate a TypeError.
 
         The message will be assumed to be of type text/* encoded with
         charset.input_charset.  It will be converted to charset.output_charset
@@ -418,14 +418,14 @@ class Message:
 
         Note that if the header appeared multiple times, exactly which
         occurrence gets returned is undefined.  Use get_all() to get all
-        the values matching a header field name.
+        the values matching a header gameField name.
         """
         return self.get(name)
 
     def __setitem__(self, name, val):
         """Set the value of a header.
 
-        Note: this does not overwrite an existing header with the same field
+        Note: this does not overwrite an existing header with the same gameField
         name.  Use __delitem__() first to delete any existing headers.
         """
         max_count = self.policy.header_max_count(name)
@@ -464,7 +464,7 @@ class Message:
             yield field
 
     def keys(self):
-        """Return a list of all the message's header field names.
+        """Return a list of all the message's header gameField names.
 
         These will be sorted in the order they appeared in the original
         message, or were added to the message, and may contain duplicates.
@@ -498,7 +498,7 @@ class Message:
     def get(self, name, failobj=None):
         """Get a header value.
 
-        Like __getitem__() but return failobj instead of None when the field
+        Like __getitem__() but return failobj instead of None when the gameField
         is missing.
         """
         name = name.lower()
@@ -531,7 +531,7 @@ class Message:
     #
 
     def get_all(self, name, failobj=None):
-        """Return a list of all the values for the named field.
+        """Return a list of all the values for the named gameField.
 
         These will be sorted in the order they appeared in the original
         message, and may contain duplicates.  Any fields deleted and
@@ -551,8 +551,8 @@ class Message:
     def add_header(self, _name, _value, **_params):
         """Extended header setting.
 
-        name is the header field to add.  keyword arguments can be used to set
-        additional parameters for the header field, with underscores converted
+        name is the header gameField to add.  keyword arguments can be used to set
+        additional parameters for the header gameField, with underscores converted
         to dashes.  Normally the parameter will be added as key="value" unless
         value is None, in which case only the key will be added.  If a
         parameter value contains non-ASCII characters it can be specified as a

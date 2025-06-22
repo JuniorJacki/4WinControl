@@ -820,7 +820,7 @@ def parse_qsl(qs, keep_blank_values=False, strict_parsing=False,
         if name_value or strict_parsing:
             name, has_eq, value = name_value.partition(eq)
             if not has_eq and strict_parsing:
-                raise ValueError("bad query field: %r" % (name_value,))
+                raise ValueError("bad query gameField: %r" % (name_value,))
             if value or keep_blank_values:
                 name = _unquote(name)
                 value = _unquote(value)

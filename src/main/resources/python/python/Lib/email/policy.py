@@ -34,7 +34,7 @@ class EmailPolicy(Policy):
 
     This policy adds new header parsing and folding algorithms.  Instead of
     simple strings, headers are custom objects with custom attributes
-    depending on the type of the field.  The folding algorithm fully
+    depending on the type of the gameField.  The folding algorithm fully
     implements RFCs 2047 and 5322.
 
     In addition to the settable attributes listed above that apply to
@@ -62,11 +62,11 @@ class EmailPolicy(Policy):
                            The default is 'long'.
 
     header_factory      -- a callable that takes two arguments, 'name' and
-                           'value', where 'name' is a header field name and
-                           'value' is an unfolded header field value, and
+                           'value', where 'name' is a header gameField name and
+                           'value' is an unfolded header gameField value, and
                            returns a string-like object that represents that
                            header.  A default header_factory is provided that
-                           understands some of the RFC5322 header field types.
+                           understands some of the RFC5322 header gameField types.
                            (Currently address fields and date fields have
                            special treatment, while all other fields are
                            treated as unstructured.  This list will be

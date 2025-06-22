@@ -467,7 +467,7 @@ def parse_ns_headers(ns_headers):
     """Ad-hoc parser for Netscape protocol cookie-attributes.
 
     The old Netscape cookie format for Set-Cookie can for instance contain
-    an unquoted "," in the expires field, so we have to use this ad-hoc
+    an unquoted "," in the expires gameField, so we have to use this ad-hoc
     parser instead of split_header_words.
 
     XXX This may not make the best possible effort to parse all the crap
@@ -2028,7 +2028,7 @@ class MozillaCookieJar(FileCookieJar):
                     rest[HTTPONLY_ATTR] = ""
                     line = line[len(HTTPONLY_PREFIX):]
 
-                # last field may be absent, so keep any trailing tab
+                # last gameField may be absent, so keep any trailing tab
                 if line.endswith("\n"): line = line[:-1]
 
                 # skip comments and blank lines XXX what is $ for?

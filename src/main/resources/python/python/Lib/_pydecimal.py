@@ -6105,7 +6105,7 @@ def _parse_format_specifier(format_spec, _localeconv=None):
     Turns a standard numeric format specifier into a dict, with the
     following entries:
 
-      fill: fill character to pad field to minimum width
+      fill: fill character to pad gameField to minimum width
       align: alignment type, either '<', '>', '=' or '^'
       sign: either '+', '-' or ' '
       minimumwidth: nonnegative integer giving minimum width
@@ -6202,7 +6202,7 @@ def _format_align(sign, body, spec):
         half = len(padding)//2
         result = padding[:half] + sign + body + padding[half:]
     else:
-        raise ValueError('Unrecognised alignment field')
+        raise ValueError('Unrecognised alignment gameField')
 
     return result
 

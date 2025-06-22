@@ -42,8 +42,8 @@ are strings, not numbers, since they are rarely used for calculations.
 #   rather than a pair of (date, time) strings.
 # - NNTP.newgroups() and NNTP.list() return a list of GroupInfo named tuples
 # - NNTP.descriptions() returns a dict mapping group names to descriptions
-# - NNTP.xover() returns a list of dicts mapping field names (header or metadata)
-#   to field values; each dict representing a message overview.
+# - NNTP.xover() returns a list of dicts mapping gameField names (header or metadata)
+#   to gameField values; each dict representing a message overview.
 # - NNTP.article(), NNTP.head() and NNTP.body() return a (response, ArticleInfo)
 #   tuple.
 # - the "internal" methods have been marked private (they now start with
@@ -222,7 +222,7 @@ def _parse_overview(lines, fmt, data_process_func=None):
             is_metadata = field_name.startswith(':')
             if i >= n_defaults and not is_metadata:
                 # Non-default header names are included in full in the response
-                # (unless the field is totally empty)
+                # (unless the gameField is totally empty)
                 h = field_name + ": "
                 if token and token[:len(h)].lower() != h:
                     raise NNTPDataError("OVER/XOVER response doesn't include "

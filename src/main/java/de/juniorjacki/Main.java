@@ -2,6 +2,7 @@ package de.juniorjacki;
 
 import de.juniorjacki.connection.Connection;
 import de.juniorjacki.connection.HubController;
+import de.juniorjacki.gui.ConnectFourGUI;
 import de.juniorjacki.gui.GuiController;
 
 import javax.swing.*;
@@ -16,7 +17,10 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
         if (!isRunningInIde()) initiateLogFile(); // Activate Log File for GUI only User
         Runtime.getRuntime().addShutdownHook(new Thread(Main::shutDown)); // Set Hook for Application Quit
-        GuiController.Instance.init();
+        SwingUtilities.invokeLater(() -> {
+            ConnectFourGUI gui = new ConnectFourGUI();
+            gui.setVisible(true);
+        });
     }
 
     public static void shutDown() {

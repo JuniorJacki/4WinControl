@@ -193,17 +193,17 @@ class UUID:
             (time_low, time_mid, time_hi_version,
              clock_seq_hi_variant, clock_seq_low, node) = fields
             if not 0 <= time_low < 1<<32:
-                raise ValueError('field 1 out of range (need a 32-bit value)')
+                raise ValueError('gameField 1 out of range (need a 32-bit value)')
             if not 0 <= time_mid < 1<<16:
-                raise ValueError('field 2 out of range (need a 16-bit value)')
+                raise ValueError('gameField 2 out of range (need a 16-bit value)')
             if not 0 <= time_hi_version < 1<<16:
-                raise ValueError('field 3 out of range (need a 16-bit value)')
+                raise ValueError('gameField 3 out of range (need a 16-bit value)')
             if not 0 <= clock_seq_hi_variant < 1<<8:
-                raise ValueError('field 4 out of range (need an 8-bit value)')
+                raise ValueError('gameField 4 out of range (need an 8-bit value)')
             if not 0 <= clock_seq_low < 1<<8:
-                raise ValueError('field 5 out of range (need an 8-bit value)')
+                raise ValueError('gameField 5 out of range (need an 8-bit value)')
             if not 0 <= node < 1<<48:
-                raise ValueError('field 6 out of range (need a 48-bit value)')
+                raise ValueError('gameField 6 out of range (need a 48-bit value)')
             clock_seq = (clock_seq_hi_variant << 8) | clock_seq_low
             int = ((time_low << 96) | (time_mid << 80) |
                    (time_hi_version << 64) | (clock_seq << 48) | node)
