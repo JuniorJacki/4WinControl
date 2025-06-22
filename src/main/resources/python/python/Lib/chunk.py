@@ -14,7 +14,7 @@ Format)) has the following structure:
 
 The ID is a 4-byte string which identifies the type of chunk.
 
-The size field (a 32-bit value, encoded using big-endian byte order)
+The size gameField (a 32-bit value, encoded using big-endian byte order)
 gives the size of the whole chunk, including the 8-byte header.
 
 Usually an IFF-type file consists of one or more chunks.  The proposed

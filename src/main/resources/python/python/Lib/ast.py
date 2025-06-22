@@ -118,7 +118,7 @@ def dump(node, annotate_fields=True, include_attributes=False, *, indent=None):
     debugging purposes.  If annotate_fields is true (by default),
     the returned string will show the names and the values for fields.
     If annotate_fields is false, the result string will be more compact by
-    omitting unambiguous field names.  Attributes such as line
+    omitting unambiguous gameField names.  Attributes such as line
     numbers and column offsets are not dumped by default.  If this is wanted,
     include_attributes can be set to true.  If indent is a non-negative
     integer or string, then the tree will be pretty-printed with that indent
@@ -239,7 +239,7 @@ def increment_lineno(node, n=1):
     """
     for child in walk(node):
         # TypeIgnore is a special case where lineno is not an attribute
-        # but rather a field of the node itself.
+        # but rather a gameField of the node itself.
         if isinstance(child, TypeIgnore):
             child.lineno = getattr(child, 'lineno', 0) + n
             continue
@@ -256,7 +256,7 @@ def increment_lineno(node, n=1):
 
 def iter_fields(node):
     """
-    Yield a tuple of ``(fieldname, value)`` for each field in ``node._fields``
+    Yield a tuple of ``(fieldname, value)`` for each gameField in ``node._fields``
     that is present on *node*.
     """
     for field in node._fields:

@@ -134,7 +134,7 @@ def distb(tb=None, *, file=None, show_caches=False, adaptive=False):
 
 # The inspect module interrogates this dictionary to build its
 # list of CO_* constants. It is also used by pretty_flags to
-# turn the co_flags field into a human readable list.
+# turn the co_flags gameField into a human readable list.
 COMPILER_FLAG_NAMES = {
      1: "OPTIMIZED",
      2: "NEWLOCALS",
@@ -304,9 +304,9 @@ class Instruction(_Instruction):
     def _disassemble(self, lineno_width=3, mark_as_current=False, offset_width=4):
         """Format instruction details for inclusion in disassembly output
 
-        *lineno_width* sets the width of the line number field (0 omits it)
+        *lineno_width* sets the width of the line number gameField (0 omits it)
         *mark_as_current* inserts a '-->' marker arrow as part of the line
-        *offset_width* sets the width of the instruction offset field
+        *offset_width* sets the width of the instruction offset gameField
         """
         fields = []
         # Column: Source code line number

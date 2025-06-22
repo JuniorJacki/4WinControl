@@ -376,8 +376,8 @@ def namedtuple(typename, field_names, *, rename=False, defaults=None, module=Non
 
     """
 
-    # Validate the field names.  At the user's option, either generate an error
-    # message or automatically replace the field name with a valid name.
+    # Validate the gameField names.  At the user's option, either generate an error
+    # message or automatically replace the gameField name with a valid name.
     if isinstance(field_names, str):
         field_names = field_names.replace(',', ' ').split()
     field_names = list(map(str, field_names))
@@ -395,12 +395,12 @@ def namedtuple(typename, field_names, *, rename=False, defaults=None, module=Non
 
     for name in [typename] + field_names:
         if type(name) is not str:
-            raise TypeError('Type names and field names must be strings')
+            raise TypeError('Type names and gameField names must be strings')
         if not name.isidentifier():
-            raise ValueError('Type names and field names must be valid '
+            raise ValueError('Type names and gameField names must be valid '
                              f'identifiers: {name!r}')
         if _iskeyword(name):
-            raise ValueError('Type names and field names cannot be a '
+            raise ValueError('Type names and gameField names cannot be a '
                              f'keyword: {name!r}')
 
     seen = set()
@@ -409,14 +409,14 @@ def namedtuple(typename, field_names, *, rename=False, defaults=None, module=Non
             raise ValueError('Field names cannot start with an underscore: '
                              f'{name!r}')
         if name in seen:
-            raise ValueError(f'Encountered duplicate field name: {name!r}')
+            raise ValueError(f'Encountered duplicate gameField name: {name!r}')
         seen.add(name)
 
     field_defaults = {}
     if defaults is not None:
         defaults = tuple(defaults)
         if len(defaults) > len(field_names):
-            raise TypeError('Got more default values than field names')
+            raise TypeError('Got more default values than gameField names')
         field_defaults = dict(reversed(list(zip(reversed(field_names),
                                                 reversed(defaults)))))
 
@@ -457,7 +457,7 @@ def namedtuple(typename, field_names, *, rename=False, defaults=None, module=Non
     def _replace(self, /, **kwds):
         result = self._make(_map(kwds.pop, field_names, self))
         if kwds:
-            raise ValueError(f'Got unexpected field names: {list(kwds)!r}')
+            raise ValueError(f'Got unexpected gameField names: {list(kwds)!r}')
         return result
 
     _replace.__doc__ = (f'Return a new {typename} object replacing specified '
@@ -468,7 +468,7 @@ def namedtuple(typename, field_names, *, rename=False, defaults=None, module=Non
         return self.__class__.__name__ + repr_fmt % self
 
     def _asdict(self):
-        'Return a new dict which maps field names to their values.'
+        'Return a new dict which maps gameField names to their values.'
         return _dict(_zip(self._fields, self))
 
     def __getnewargs__(self):
@@ -502,7 +502,7 @@ def namedtuple(typename, field_names, *, rename=False, defaults=None, module=Non
         '__match_args__': field_names,
     }
     for index, name in enumerate(field_names):
-        doc = _sys.intern(f'Alias for field number {index}')
+        doc = _sys.intern(f'Alias for gameField number {index}')
         class_namespace[name] = _tuplegetter(index, doc)
 
     result = type(typename, (tuple,), class_namespace)

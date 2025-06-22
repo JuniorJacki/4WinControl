@@ -659,7 +659,7 @@ class Entry(Widget, tkinter.Entry):
 
 
 class Combobox(Entry):
-    """Ttk Combobox widget combines a text field with a pop-down list of
+    """Ttk Combobox widget combines a text gameField with a pop-down list of
     values."""
 
     def __init__(self, master=None, **kw):

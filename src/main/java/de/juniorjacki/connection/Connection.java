@@ -1,9 +1,11 @@
 package de.juniorjacki.connection;
 
+import de.juniorjacki.gui.LoadingScreen;
 import de.juniorjacki.python.PythonController;
 
 import javax.swing.*;
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -31,7 +33,7 @@ public class Connection {
     private final long timeoutTime = 10000; // [Milliseconds] If a Process takes longer than this time it will be skipped
     private final long requestTimeoutTime = 400;
 
-    private final boolean printProtocolLog = false;
+    private final boolean printProtocolLog = true;
 
     public Connection(String deviceName, String serviceUUID,Runnable onShutdown) {
         this.deviceName = deviceName;
@@ -57,34 +59,49 @@ public class Connection {
             writer.set(new BufferedWriter(new OutputStreamWriter(connectionProcess.get().getOutputStream())));
             reader.set(new BufferedReader(new InputStreamReader(connectionProcess.get().getInputStream())));
 
-            CompletableFuture<Boolean> waitingSequence = new CompletableFuture<Boolean>();
-            startingSequence(waitingSequence);
+            LoadingScreen frame = LoadingScreen.createAndShow("Hub Verbindung: " + deviceName);
             try {
-                if (waitingSequence.get(20000,TimeUnit.MILLISECONDS)) {
-                    startListener();
-                    readyForRequest.set(true);
-                    startSender();
-                    return true;
+                CompletableFuture<Boolean> waitingSequence = new CompletableFuture<Boolean>();
+                try {
+                    frame.setStatusText("Verbinde");
+                    startingSequence(waitingSequence,frame);
+                    if (waitingSequence.get(20000,TimeUnit.MILLISECONDS)) {
+                        startListener();
+                        readyForRequest.set(true);
+                        startSender();
+                        return true;
+                    }
+                } catch (Exception ignored) {
+                    if (printProtocolLog) System.out.println("time capped init failure");
                 }
-            } catch (Exception ignored) {
-                if (printProtocolLog) System.out.println("time capped init failure");
+                shutdown();
+                return false;
+
+            } finally {
+                try {
+                    Thread.sleep(2000);
+                } catch (Exception ignored) {}
+                frame.terminateAllSubThreads();
+                frame.dispose(); // Schließe das Fenster
             }
-            shutdown();
-            return false;
+
         } else JOptionPane.showMessageDialog(null,"Could not use Python Env","Error",JOptionPane.ERROR_MESSAGE);
         return false;
     }
 
-    private void startingSequence(CompletableFuture<Boolean> success) {
+    private void startingSequence(CompletableFuture<Boolean> success, LoadingScreen hubLoadingScreen) {
         try {
             String initiationLine = reader.get().readLine();
             if (Objects.equals(initiationLine, "crdy")) {
+                hubLoadingScreen.setStatusText("Verbindung hergestellt");
                 System.out.println("Verbindung hergestellt");
 
                 Thread.sleep(2000);
                 writer.get().write("ini::"+"\n");
                 writer.get().flush();
 
+
+                hubLoadingScreen.setStatusText("Sende Init Kommando");
                 if (printProtocolLog) System.out.println("Send initiation Command");
 
                 Thread.sleep(1000);
@@ -97,9 +114,13 @@ public class Connection {
                 String response = reader.get().readLine();
                 if (printProtocolLog) System.out.println(response);
                 if (response.equals("ret:ins:")) { // Hub Confirms functionality
+
+                    hubLoadingScreen.setStatusText("Verbindung erfolgreich");
                     success.complete(true);
                 }
             } else {
+                hubLoadingScreen.showErrorCross();
+                hubLoadingScreen.setStatusText("Hub wurde nicht gefunden");
                 System.out.println("Verbindung nicht möglich: " + initiationLine);
             }
             success.complete(false);

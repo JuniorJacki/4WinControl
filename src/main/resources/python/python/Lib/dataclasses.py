@@ -191,7 +191,7 @@ class _KW_ONLY_TYPE:
     pass
 KW_ONLY = _KW_ONLY_TYPE()
 
-# Since most per-field metadata will be unused, create an empty
+# Since most per-gameField metadata will be unused, create an empty
 # read-only proxy that can be shared among all fields.
 _EMPTY_METADATA = types.MappingProxyType({})
 
@@ -283,7 +283,7 @@ class InitVar:
         return InitVar(type)
 
 # Instances of Field are only ever created from within this module,
-# and only from the field() function, although Field instances are
+# and only from the gameField() function, although Field instances are
 # exposed externally as (conceptually) read-only objects.
 #
 # name and type are filled in after the fact, not in __init__.
@@ -339,7 +339,7 @@ class Field:
                 ')')
 
     # This is used to support the PEP 487 __set_name__ protocol in the
-    # case where we're using a field that contains a descriptor as a
+    # case where we're using a gameField that contains a descriptor as a
     # default value.  For details on __set_name__, see
     # https://peps.python.org/pep-0487/#implementation-details.
     #
@@ -405,15 +405,15 @@ def field(*, default=MISSING, default_factory=MISSING, init=True, repr=True,
           hash=None, compare=True, metadata=None, kw_only=MISSING):
     """Return an object to identify dataclass fields.
 
-    default is the default value of the field.  default_factory is a
-    0-argument function called to initialize a field's value.  If init
-    is true, the field will be a parameter to the class's __init__()
-    function.  If repr is true, the field will be included in the
-    object's repr().  If hash is true, the field will be included in the
-    object's hash().  If compare is true, the field will be used in
+    default is the default value of the gameField.  default_factory is a
+    0-argument function called to initialize a gameField's value.  If init
+    is true, the gameField will be a parameter to the class's __init__()
+    function.  If repr is true, the gameField will be included in the
+    object's repr().  If hash is true, the gameField will be included in the
+    object's hash().  If compare is true, the gameField will be used in
     comparison functions.  metadata, if specified, must be a mapping
     which is stored but not otherwise examined by dataclass.  If kw_only
-    is true, the field will become a keyword-only parameter to
+    is true, the gameField will become a keyword-only parameter to
     __init__().
 
     It is an error to specify both default and default_factory.
@@ -435,7 +435,7 @@ def _fields_in_init_order(fields):
 
 
 def _tuple_str(obj_name, fields):
-    # Return a string representing each field of obj_name as a tuple
+    # Return a string representing each gameField of obj_name as a tuple
     # member.  So, if fields is ['x', 'y'] and obj_name is "self",
     # return "(self.x,self.y)".
 
@@ -480,7 +480,7 @@ def _field_assign(frozen, name, value, self_name):
     # assignment.
     #
     # self_name is what "self" is called in this function: don't
-    # hard-code "self", since that might be a field name.
+    # hard-code "self", since that might be a gameField name.
     if frozen:
         return f'__dataclass_builtins_object__.__setattr__({self_name},{name!r},{value})'
     return f'{self_name}.{name}={value}'
@@ -488,24 +488,24 @@ def _field_assign(frozen, name, value, self_name):
 
 def _field_init(f, frozen, globals, self_name, slots):
     # Return the text of the line in the body of __init__ that will
-    # initialize this field.
+    # initialize this gameField.
 
     default_name = f'__dataclass_dflt_{f.name}__'
     if f.default_factory is not MISSING:
         if f.init:
-            # This field has a default factory.  If a parameter is
+            # This gameField has a default factory.  If a parameter is
             # given, use it.  If not, call the factory.
             globals[default_name] = f.default_factory
             value = (f'{default_name}() '
                      f'if {f.name} is __dataclass_HAS_DEFAULT_FACTORY__ '
                      f'else {f.name}')
         else:
-            # This is a field that's not in the __init__ params, but
+            # This is a gameField that's not in the __init__ params, but
             # has a default factory function.  It needs to be
             # initialized here by calling the factory function,
             # because there's no other way to initialize it.
 
-            # For a field initialized with a default=defaultvalue, the
+            # For a gameField initialized with a default=defaultvalue, the
             # class dict just has the default value
             # (cls.fieldname=defaultvalue).  But that won't work for a
             # default factory, the factory must be called in __init__
@@ -526,12 +526,12 @@ def _field_init(f, frozen, globals, self_name, slots):
                 globals[default_name] = f.default
                 value = f.name
         else:
-            # If the class has slots, then initialize this field.
+            # If the class has slots, then initialize this gameField.
             if slots and f.default is not MISSING:
                 globals[default_name] = f.default
                 value = default_name
             else:
-                # This field does not need initialization: reading from it will
+                # This gameField does not need initialization: reading from it will
                 # just use the class attribute that contains the default.
                 # Signify that to the caller by returning None.
                 return None
@@ -542,12 +542,12 @@ def _field_init(f, frozen, globals, self_name, slots):
     if f._field_type is _FIELD_INITVAR:
         return None
 
-    # Now, actually generate the field assignment.
+    # Now, actually generate the gameField assignment.
     return _field_assign(frozen, f.name, value, self_name)
 
 
 def _init_param(f):
-    # Return the __init__ parameter string for this field.  For
+    # Return the __init__ parameter string for this gameField.  For
     # example, the equivalent of 'x:int=3' (except instead of 'int',
     # reference a variable set to int, and instead of '3', reference a
     # variable set to 3).
@@ -594,8 +594,8 @@ def _init_fn(fields, std_fields, kw_only_fields, frozen, has_post_init,
     body_lines = []
     for f in fields:
         line = _field_init(f, frozen, locals, self_name, slots)
-        # line is None means that this field doesn't require
-        # initialization (it's a pseudo-field).  Just skip it.
+        # line is None means that this gameField doesn't require
+        # initialization (it's a pseudo-gameField).  Just skip it.
         if line:
             body_lines.append(line)
 
@@ -644,14 +644,14 @@ def _frozen_get_del_attr(cls, fields, globals):
     return (_create_fn('__setattr__',
                       ('self', 'name', 'value'),
                       (f'if {condition}:',
-                        ' raise FrozenInstanceError(f"cannot assign to field {name!r}")',
+                        ' raise FrozenInstanceError(f"cannot assign to gameField {name!r}")',
                        f'super(cls, self).__setattr__(name, value)'),
                        locals=locals,
                        globals=globals),
             _create_fn('__delattr__',
                       ('self', 'name'),
                       (f'if {condition}:',
-                        ' raise FrozenInstanceError(f"cannot delete field {name!r}")',
+                        ' raise FrozenInstanceError(f"cannot delete gameField {name!r}")',
                        f'super(cls, self).__delattr__(name)'),
                        locals=locals,
                        globals=globals),
@@ -736,7 +736,7 @@ def _is_type(annotation, cls, a_module, a_type, is_type_predicate):
     # ClassVar.  This is a fairly obscure corner case, and the best
     # way to fix it would be to eval() the string "CV" with the
     # correct global and local namespaces.  However that would involve
-    # a eval() penalty for every single field of every dataclass
+    # a eval() penalty for every single gameField of every dataclass
     # that's defined.  It was judged not worth it.
 
     match = _MODULE_IDENTIFIER_RE.match(annotation)
@@ -758,9 +758,9 @@ def _is_type(annotation, cls, a_module, a_type, is_type_predicate):
 
 
 def _get_field(cls, a_name, a_type, default_kw_only):
-    # Return a Field object for this field name and type.  ClassVars and
+    # Return a Field object for this gameField name and type.  ClassVars and
     # InitVars are also returned, but marked as such (see f._field_type).
-    # default_kw_only is the value of kw_only to use if there isn't a field()
+    # default_kw_only is the value of kw_only to use if there isn't a gameField()
     # that defines it.
 
     # If the default value isn't derived from Field, then it's only a
@@ -770,7 +770,7 @@ def _get_field(cls, a_name, a_type, default_kw_only):
         f = default
     else:
         if isinstance(default, types.MemberDescriptorType):
-            # This is a field in __slots__, so it has no default value.
+            # This is a gameField in __slots__, so it has no default value.
             default = MISSING
         f = field(default=default)
 
@@ -778,9 +778,9 @@ def _get_field(cls, a_name, a_type, default_kw_only):
     f.name = a_name
     f.type = a_type
 
-    # Assume it's a normal field until proven otherwise.  We're next
+    # Assume it's a normal gameField until proven otherwise.  We're next
     # going to decide if it's a ClassVar or InitVar, everything else
-    # is just a normal field.
+    # is just a normal gameField.
     f._field_type = _FIELD
 
     # In addition to checking for actual types here, also check for
@@ -819,14 +819,14 @@ def _get_field(cls, a_name, a_type, default_kw_only):
 
     # Validations for individual fields.  This is delayed until now,
     # instead of in the Field() constructor, since only here do we
-    # know the field name, which allows for better error reporting.
+    # know the gameField name, which allows for better error reporting.
 
     # Special restrictions for ClassVar and InitVar.
     if f._field_type in (_FIELD_CLASSVAR, _FIELD_INITVAR):
         if f.default_factory is not MISSING:
-            raise TypeError(f'field {f.name} cannot have a '
+            raise TypeError(f'gameField {f.name} cannot have a '
                             'default factory')
-        # Should I check for other field settings? default_factory
+        # Should I check for other gameField settings? default_factory
         # seems the most serious to check for.  Maybe add others.  For
         # example, how about init=False (or really,
         # init=<not-the-default-init-value>)?  It makes no sense for
@@ -842,14 +842,14 @@ def _get_field(cls, a_name, a_type, default_kw_only):
         # Make sure kw_only isn't set for ClassVars
         assert f._field_type is _FIELD_CLASSVAR
         if f.kw_only is not MISSING:
-            raise TypeError(f'field {f.name} is a ClassVar but specifies '
+            raise TypeError(f'gameField {f.name} is a ClassVar but specifies '
                             'kw_only')
 
     # For real fields, disallow mutable defaults.  Use unhashable as a proxy
     # indicator for mutability.  Read the __hash__ attribute from the class,
     # not the instance.
     if f._field_type is _FIELD and f.default.__class__.__hash__ is None:
-        raise ValueError(f'mutable default {type(f.default)} for field '
+        raise ValueError(f'mutable default {type(f.default)} for gameField '
                          f'{f.name} is not allowed: use default_factory')
 
     return f
@@ -943,7 +943,7 @@ def _process_class(cls, init, repr, eq, order, unsafe_hash, frozen,
 
     # Find our base classes in reverse MRO order, and exclude
     # ourselves.  In reversed order so that more derived classes
-    # override earlier field definitions in base classes.  As long as
+    # override earlier gameField definitions in base classes.  As long as
     # we're iterating over them, see if any are frozen.
     any_frozen_base = False
     has_dataclass_bases = False
@@ -961,7 +961,7 @@ def _process_class(cls, init, repr, eq, order, unsafe_hash, frozen,
     # Annotations defined specifically in this class (not in base classes).
     #
     # Fields are found from cls_annotations, which is guaranteed to be
-    # ordered.  Default values are from class attributes, if a field
+    # ordered.  Default values are from class attributes, if a gameField
     # has a default.  If the default value is a Field(), then it
     # contains additional info beyond (and possibly including) the
     # actual default value.  Pseudo-fields ClassVars and InitVars are
@@ -983,28 +983,28 @@ def _process_class(cls, init, repr, eq, order, unsafe_hash, frozen,
                 and _is_type(type, cls, dataclasses, dataclasses.KW_ONLY,
                              _is_kw_only))):
             # Switch the default to kw_only=True, and ignore this
-            # annotation: it's not a real field.
+            # annotation: it's not a real gameField.
             if KW_ONLY_seen:
                 raise TypeError(f'{name!r} is KW_ONLY, but KW_ONLY '
                                 'has already been specified')
             KW_ONLY_seen = True
             kw_only = True
         else:
-            # Otherwise it's a field of some type.
+            # Otherwise it's a gameField of some type.
             cls_fields.append(_get_field(cls, name, type, kw_only))
 
     for f in cls_fields:
         fields[f.name] = f
 
         # If the class attribute (which is the default value for this
-        # field) exists and is of type 'Field', replace it with the
+        # gameField) exists and is of type 'Field', replace it with the
         # real default.  This is so that normal class introspection
         # sees a real default value, not a Field.
         if isinstance(getattr(cls, f.name, None), Field):
             if f.default is MISSING:
                 # If there's no default, delete the class attribute.
-                # This happens if we specify field(repr=False), for
-                # example (that is, we specified a field object, but
+                # This happens if we specify gameField(repr=False), for
+                # example (that is, we specified a gameField object, but
                 # no default value).  Also if we're using a default
                 # factory.  The class attribute should not be set at
                 # all in the post-processed class.
@@ -1015,7 +1015,7 @@ def _process_class(cls, init, repr, eq, order, unsafe_hash, frozen,
     # Do we have any Field members that don't also have annotations?
     for name, value in cls.__dict__.items():
         if isinstance(value, Field) and not name in cls_annotations:
-            raise TypeError(f'{name!r} is a field but has no type annotation')
+            raise TypeError(f'{name!r} is a gameField but has no type annotation')
 
     # Check rules that apply if we are derived from any dataclasses.
     if has_dataclass_bases:
@@ -1307,7 +1307,7 @@ def is_dataclass(obj):
 
 def asdict(obj, *, dict_factory=dict):
     """Return the fields of a dataclass instance as a new dictionary mapping
-    field names to field values.
+    gameField names to gameField values.
 
     Example usage::
 
@@ -1320,7 +1320,7 @@ def asdict(obj, *, dict_factory=dict):
       assert asdict(c) == {'x': 1, 'y': 2}
 
     If given, 'dict_factory' will be used instead of built-in dict.
-    The function applies recursively to field values that are
+    The function applies recursively to gameField values that are
     dataclass instances. This will also look into built-in containers:
     tuples, lists, and dicts. Other objects are copied with 'copy.deepcopy()'.
     """
@@ -1387,7 +1387,7 @@ def _asdict_inner(obj, dict_factory):
 
 
 def astuple(obj, *, tuple_factory=tuple):
-    """Return the fields of a dataclass instance as a new tuple of field values.
+    """Return the fields of a dataclass instance as a new tuple of gameField values.
 
     Example usage::
 
@@ -1400,7 +1400,7 @@ def astuple(obj, *, tuple_factory=tuple):
       assert astuple(c) == (1, 2)
 
     If given, 'tuple_factory' will be used instead of built-in tuple.
-    The function applies recursively to field values that are
+    The function applies recursively to gameField values that are
     dataclass instances. This will also look into built-in containers:
     tuples, lists, and dicts. Other objects are copied with 'copy.deepcopy()'.
     """
@@ -1456,9 +1456,9 @@ def make_dataclass(cls_name, fields, *, bases=(), namespace=None, init=True,
     The dataclass name will be 'cls_name'.  'fields' is an iterable
     of either (name), (name, type) or (name, type, Field) objects. If type is
     omitted, use the string 'typing.Any'.  Field objects are created by
-    the equivalent of calling 'field(name, type [, Field-info])'.::
+    the equivalent of calling 'gameField(name, type [, Field-info])'.::
 
-      C = make_dataclass('C', ['x', ('y', int), ('z', int, field(init=False))], bases=(Base,))
+      C = make_dataclass('C', ['x', ('y', int), ('z', int, gameField(init=False))], bases=(Base,))
 
     is equivalent to::
 
@@ -1466,7 +1466,7 @@ def make_dataclass(cls_name, fields, *, bases=(), namespace=None, init=True,
       class C(Base):
           x: 'typing.Any'
           y: int
-          z: int = field(init=False)
+          z: int = gameField(init=False)
 
     For the bases and namespace parameters, see the builtin type() function.
 
@@ -1480,7 +1480,7 @@ def make_dataclass(cls_name, fields, *, bases=(), namespace=None, init=True,
     if namespace is None:
         namespace = {}
 
-    # While we're looking through the field names, validate that they
+    # While we're looking through the gameField names, validate that they
     # are identifiers, are not keywords, and not duplicates.
     seen = set()
     annotations = {}
@@ -1495,7 +1495,7 @@ def make_dataclass(cls_name, fields, *, bases=(), namespace=None, init=True,
             name, tp, spec = item
             defaults[name] = spec
         else:
-            raise TypeError(f'Invalid field: {item!r}')
+            raise TypeError(f'Invalid gameField: {item!r}')
 
         if not isinstance(name, str) or not name.isidentifier():
             raise TypeError(f'Field names must be valid identifiers: {name!r}')
@@ -1559,7 +1559,7 @@ def replace(obj, /, **changes):
         raise TypeError("replace() should be called on dataclass instances")
 
     # It's an error to have init=False fields in 'changes'.
-    # If a field is not in 'changes', read its value from the provided obj.
+    # If a gameField is not in 'changes', read its value from the provided obj.
 
     for f in getattr(obj, _FIELDS).values():
         # Only consider normal fields or InitVars.
@@ -1567,9 +1567,9 @@ def replace(obj, /, **changes):
             continue
 
         if not f.init:
-            # Error if this field is specified in changes.
+            # Error if this gameField is specified in changes.
             if f.name in changes:
-                raise ValueError(f'field {f.name} is declared with '
+                raise ValueError(f'gameField {f.name} is declared with '
                                  'init=False, it cannot be specified with '
                                  'replace()')
             continue

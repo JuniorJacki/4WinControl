@@ -2172,7 +2172,7 @@ def parse_message_id(value):
 #
 # XXX: As I begin to add additional header parsers, I'm realizing we probably
 # have two level of parser routines: the get_XXX methods that get a token in
-# the grammar, and parse_XXX methods that parse an entire field value.  So
+# the grammar, and parse_XXX methods that parse an entire gameField value.  So
 # get_address_list above should really be a parse_ method, as probably should
 # be get_unstructured.
 #

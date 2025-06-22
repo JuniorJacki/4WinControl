@@ -1,9 +1,11 @@
 package de.juniorjacki.game;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class GameField {
+public class GameField implements Cloneable{
 
     // Rows are Counted from Driving Side Left to Right (Starting from Scanner reflektor)
     // Each Row hat its own reference because of optimization for Multithreading
@@ -18,19 +20,36 @@ public class GameField {
     AtomicReference<HashMap<Byte, Byte>> row5 = new AtomicReference<>(new HashMap<Byte, Byte>());
     AtomicReference<HashMap<Byte, Byte>> row6 = new AtomicReference<>(new HashMap<Byte, Byte>());
 
+    @Override
+    public GameField clone() {
+        try {
+            GameField clone = (GameField) super.clone();
+            clone.row0 = new AtomicReference<>(new HashMap<>(row0.get()));
+            clone.row1 = new AtomicReference<>(new HashMap<>(row1.get()));
+            clone.row2 = new AtomicReference<>(new HashMap<>(row2.get()));
+            clone.row3 = new AtomicReference<>(new HashMap<>(row3.get()));
+            clone.row4 = new AtomicReference<>(new HashMap<>(row4.get()));
+            clone.row5 = new AtomicReference<>(new HashMap<>(row5.get()));
+            clone.row6 = new AtomicReference<>(new HashMap<>(row6.get()));
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
+
+
     /**
      *
      * @param gameField Gamefield at Timestamp
      * @param currentMove Current Move that was done
-     * @param opponentMove Last Move that was done by Opponnent
-     * @param badMoves Bad Moves for Bot current Move
-     * @param prohibitMoves Prohibit Moves that that should be done to prohibit Opponent Win
-     * @param currentWinLine
-     * @param needMovesToWinAfterCurrent
-     * @param neededMovesToWinAfterOpponent
-     * @param timestamp
+     * @param badMoves Bad Moves for current Move
+     * @param prohibitWinLines Prohibit Moves that that should be done to prohibit Opponent Win
+     * @param currentWinLines Current Possible WinLine
+     * @param neededMovesToWinAfterCurrent Needed Moves to Win After for Current
+     * @param neededMovesToWinAfterOpponent Needed Moves to Win After for Opponent
+     * @param timestamp Timestamp of Move
      */
-    public record HistoryMove(GameField gameField, FieldPosition currentMove, FieldPosition opponentMove, List<FieldPosition> badMoves, GameControl.AlgorithmMove prohibitMoves, GameControl.PossibleWinLine currentWinLine, int needMovesToWinAfterCurrent, int neededMovesToWinAfterOpponent, long timestamp) {}
+    public record HistoryMove(GameField gameField, FieldPosition currentMove, List<FieldPosition> badMoves, List<Algorithm.PossibleWinLine> prohibitWinLines, List<Algorithm.PossibleWinLine> currentWinLines, int neededMovesToWinAfterCurrent, int neededMovesToWinAfterOpponent, long timestamp, ICSValue lineColor) {}
 
     /**
      * Object for selecting Field on the GameField
@@ -108,15 +127,21 @@ public class GameField {
         }
     }
 
+    public boolean isEmpty() {
+        for (Map.Entry<Byte, HashMap<Byte, Byte>> entry : getAllFields().entrySet()) {
+            for (Byte value : entry.getValue().values()) {
+                if (value != null) {
+                    return false; // Early exit, sobald ein nicht-null Wert gefunden wird
+                }
+            }
+        }
+        return true; // Alle Felder sind null, also leer
+    }
+
     public String generateBoardString() {
         StringBuilder board = new StringBuilder();
-
-        // Iteriere über die Zeilen (y-Richtung, column, 0 bis 5)
         for (byte column = 0; column < 6; column++) {
-            // Zeilennummer und Start des Zeileninhalts
             board.append(String.format("%d: ", column));
-
-            // Iteriere über die Spalten (x-Richtung, row, 0 bis 6)
             for (byte row = 0; row < 7; row++) {
                 ICSValue value = getFieldICSValue(row, column);
                 if (value == ICSValue.RED) {
@@ -127,32 +152,33 @@ public class GameField {
                     board.append(". ");
                 }
             }
-            // Entferne das letzte Leerzeichen und füge Zeilenumbruch hinzu
             board.setLength(board.length() - 1);
             board.append("\n");
         }
-
-        // Füge die Spaltenindizes hinzu
         board.append("   0 1 2 3 4 5 6\n");
-
         return board.toString();
     }
 
-    public HashMap<Byte,HashMap<Byte,Byte>> getAllFields() {
-        HashMap<Byte,HashMap<Byte,Byte>> fieldList = new HashMap<>();
-        fieldList.put((byte) 0,row0.get());
-        fieldList.put((byte) 1,row1.get());
-        fieldList.put((byte) 2,row2.get());
-        fieldList.put((byte) 3,row3.get());
-        fieldList.put((byte) 4,row4.get());
-        fieldList.put((byte) 5,row5.get());
-        fieldList.put((byte) 6,row6.get());
-        return fieldList;
+    /**
+     * @return Map of All Fields on GameField
+     */
+    public HashMap<Byte, HashMap<Byte, Byte>> getAllFields() {
+        HashMap<Byte, HashMap<Byte, Byte>> map = new HashMap<>();
+        for (int i = 0; i < 7; i++) {
+            int finalI = i;
+            getRow((byte) i).ifPresent(hashMap -> {
+                map.put((byte) finalI, hashMap);
+            });
+        }
+        return map;
     }
 
-
-    private AtomicReference<HashMap<Byte, Byte>> getRowReference(byte rowNum) {
-        return switch (rowNum) {
+    /**
+     * @param rowindex Row Index
+     * @return The Reference of the Row
+     */
+    private AtomicReference<HashMap<Byte, Byte>> getRowReference(byte rowindex) {
+        return switch (rowindex) {
             case 0 -> row0;
             case 1 -> row1;
             case 2 -> row2;
@@ -178,6 +204,7 @@ public class GameField {
      * @param newValue New Color Value
      */
     public GameField updateField(FieldPosition position, byte newValue ){
+        if (newValue == -1) return this; // Filter Bad Input Values
         return updateField(position.row(),position.column(),newValue);
     }
 
@@ -234,10 +261,19 @@ public class GameField {
      * InterpretedColorScannerValue
      */
     public enum ICSValue {
-        RED(40,65 ),
-        YELLOW(70,100 ),
-        BLUE(20,35 ),
-        AIR(0,  0);
+        RED(40,65 ,new Color(220,37,37)),
+        YELLOW(66,100 ,new Color(255,193,7)),
+        BLUE(5,39, Color.BLUE),
+        AIR(0,  0,null),
+
+
+        // GUI
+        RED_WIN(101,101,new Color(0, 255, 234)),
+        YELLOW_WIN(102,102,new Color(200, 255, 0)),
+        BAD_MOVE(104,104,new Color(47, 0, 255)),
+        CURRENT_MOVE(105,105,new Color(48, 131, 255))
+        ;
+
 
         public byte getMin() {
             return min;
@@ -245,10 +281,12 @@ public class GameField {
 
         private final byte min;
         private final byte max;
+        public final Color displayColor;
 
-        ICSValue(int min, int max) {
+        ICSValue(int min, int max,Color displayColor) {
             this.min = (byte)min;
             this.max = (byte)max;
+            this.displayColor = displayColor;
         }
 
         public static ICSValue getColorByValue(Byte colorValue) {

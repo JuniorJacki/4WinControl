@@ -115,11 +115,11 @@ _MAXHEADERS = 100
 #
 # VCHAR          = %x21-7E
 # obs-text       = %x80-FF
-# header-field   = field-name ":" OWS field-value OWS
-# field-name     = token
-# field-value    = *( field-content / obs-fold )
-# field-content  = field-vchar [ 1*( SP / HTAB ) field-vchar ]
-# field-vchar    = VCHAR / obs-text
+# header-gameField   = gameField-name ":" OWS gameField-value OWS
+# gameField-name     = token
+# gameField-value    = *( gameField-content / obs-fold )
+# gameField-content  = gameField-vchar [ 1*( SP / HTAB ) gameField-vchar ]
+# gameField-vchar    = VCHAR / obs-text
 #
 # obs-fold       = CRLF 1*( SP / HTAB )
 #                ; obsolete line folding

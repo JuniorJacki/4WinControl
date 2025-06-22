@@ -1,7 +1,5 @@
 package de.juniorjacki.python;
 
-import de.juniorjacki.PybricksController;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,7 +46,7 @@ public class PythonController {
 
     // Sub-method to check if a resource exists
     private static URL checkResourceExists(String resourcePath) throws IOException {
-        URL resourceUrl = PybricksController.class.getClassLoader().getResource(resourcePath);
+        URL resourceUrl = PythonController.class.getClassLoader().getResource(resourcePath);
         System.out.println("Resource URL for " + resourcePath + ": " + resourceUrl);
         if (resourceUrl == null) {
             throw new IOException("Resource not found: " + resourcePath);
@@ -108,7 +106,7 @@ public class PythonController {
     // Sub-method to extract a resource folder from JAR or copy from filesystem
     private static void extractResourceFolder(String resourcePath, Path targetDir) throws IOException, URISyntaxException {
         String cleanPath = resourcePath.startsWith("/") ? resourcePath.substring(1) : resourcePath;
-        URL resourceUrl = PybricksController.class.getClassLoader().getResource(cleanPath);
+        URL resourceUrl = PythonController.class.getClassLoader().getResource(cleanPath);
         if (resourceUrl == null) {
             throw new IOException("Resource folder not found: " + resourcePath);
         }

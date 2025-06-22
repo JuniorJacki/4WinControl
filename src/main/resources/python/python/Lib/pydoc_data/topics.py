@@ -4928,7 +4928,7 @@ text, which is copied unchanged to the output.  If you need to include
 a brace character in the literal text, it can be escaped by doubling:
 "{{" and "}}".
 
-The grammar for a replacement field is as follows:
+The grammar for a replacement gameField is as follows:
 
    replacement_field ::= "{" [field_name] ["!" conversion] [":" format_spec] "}"
    field_name        ::= arg_name ("." attribute_name | "[" element_index "]")*
@@ -4939,10 +4939,10 @@ The grammar for a replacement field is as follows:
    conversion        ::= "r" | "s" | "a"
    format_spec       ::= format-spec:format_spec
 
-In less formal terms, the replacement field can start with a
+In less formal terms, the replacement gameField can start with a
 *field_name* that specifies the object whose value is to be formatted
-and inserted into the output instead of the replacement field. The
-*field_name* is optionally followed by a  *conversion* field, which is
+and inserted into the output instead of the replacement gameField. The
+*field_name* is optionally followed by a  *conversion* gameField, which is
 preceded by an exclamation point "'!'", and a *format_spec*, which is
 preceded by a colon "':'".  These specify a non-default format for the
 replacement value.
@@ -4980,7 +4980,7 @@ Some simple format string examples:
    "Weight in tons {0.weight}"       # 'weight' attribute of first positional arg
    "Units destroyed: {players[0]}"   # First element of keyword argument 'players'.
 
-The *conversion* field causes a type coercion before formatting.
+The *conversion* gameField causes a type coercion before formatting.
 Normally, the job of formatting a value is done by the "__format__()"
 method of the value itself.  However, in some cases it is desirable to
 force a type to be formatted as a string, overriding its own
@@ -4997,16 +4997,16 @@ Some examples:
    "Bring out the holy {name!r}"    # Calls repr() on the argument first
    "More {!a}"                      # Calls ascii() on the argument first
 
-The *format_spec* field contains a specification of how the value
-should be presented, including such details as field width, alignment,
+The *format_spec* gameField contains a specification of how the value
+should be presented, including such details as gameField width, alignment,
 padding, decimal precision and so on.  Each value type can define its
 own “formatting mini-language” or interpretation of the *format_spec*.
 
 Most built-in types support a common formatting mini-language, which
 is described in the next section.
 
-A *format_spec* field can also include nested replacement fields
-within it. These nested replacement fields may contain a field name,
+A *format_spec* gameField can also include nested replacement fields
+within it. These nested replacement fields may contain a gameField name,
 conversion flag and format specification, but deeper nesting is not
 allowed.  The replacement fields within the format_spec are
 substituted before the *format_spec* string is interpreted. This
@@ -5050,7 +5050,7 @@ character that can be any character and defaults to a space if
 omitted. It is not possible to use a literal curly brace (”"{"” or
 “"}"”) as the *fill* character in a formatted string literal or when
 using the "str.format()" method.  However, it is possible to insert a
-curly brace with a nested replacement field.  This limitation doesn’t
+curly brace with a nested replacement gameField.  This limitation doesn’t
 affect the "format()" function.
 
 The meaning of the various alignment options is as follows:
@@ -5058,10 +5058,10 @@ The meaning of the various alignment options is as follows:
 +-----------+------------------------------------------------------------+
 | Option    | Meaning                                                    |
 |===========|============================================================|
-| "'<'"     | Forces the field to be left-aligned within the available   |
+| "'<'"     | Forces the gameField to be left-aligned within the available   |
 |           | space (this is the default for most objects).              |
 +-----------+------------------------------------------------------------+
-| "'>'"     | Forces the field to be right-aligned within the available  |
+| "'>'"     | Forces the gameField to be right-aligned within the available  |
 |           | space (this is the default for numbers).                   |
 +-----------+------------------------------------------------------------+
 | "'='"     | Forces the padding to be placed after the sign (if any)    |
@@ -5069,13 +5069,13 @@ The meaning of the various alignment options is as follows:
 |           | in the form ‘+000000120’. This alignment option is only    |
 |           | valid for numeric types, excluding "complex". It becomes   |
 |           | the default for numbers when ‘0’ immediately precedes the  |
-|           | field width.                                               |
+|           | gameField width.                                               |
 +-----------+------------------------------------------------------------+
-| "'^'"     | Forces the field to be centered within the available       |
+| "'^'"     | Forces the gameField to be centered within the available       |
 |           | space.                                                     |
 +-----------+------------------------------------------------------------+
 
-Note that unless a minimum field width is defined, the field width
+Note that unless a minimum gameField width is defined, the gameField width
 will always be the same size as the data to fill it, so that the
 alignment option has no meaning in this case.
 
@@ -5114,20 +5114,20 @@ point character appears in the result of these conversions only if a
 digit follows it. In addition, for "'g'" and "'G'" conversions,
 trailing zeros are not removed from the result.
 
-The *width* is a decimal integer defining the minimum total field
+The *width* is a decimal integer defining the minimum total gameField
 width, including any prefixes, separators, and other formatting
-characters. If not specified, then the field width will be determined
+characters. If not specified, then the gameField width will be determined
 by the content.
 
-When no explicit alignment is given, preceding the *width* field by a
+When no explicit alignment is given, preceding the *width* gameField by a
 zero ("'0'") character enables sign-aware zero-padding for numeric
 types, excluding "complex".  This is equivalent to a *fill* character
 of "'0'" with an *alignment* type of "'='".
 
-Changed in version 3.10: Preceding the *width* field by "'0'" no
+Changed in version 3.10: Preceding the *width* gameField by "'0'" no
 longer affects the default alignment for strings.
 
-The *grouping* option after the *width* field specifies a digit group
+The *grouping* option after the *width* gameField specifies a digit group
 separator for the integral part of a number. It can be one of the
 following:
 
@@ -5156,9 +5156,9 @@ Changed in version 3.6: Added the "'_'" option (see also **PEP 515**).
 The *precision* is a decimal integer indicating how many digits should
 be displayed after the decimal point for presentation types "'f'" and
 "'F'", or before and after the decimal point for presentation types
-"'g'" or "'G'".  For string presentation types the field indicates the
-maximum field size - in other words, how many characters will be used
-from the field content.  The *precision* is not allowed for integer
+"'g'" or "'G'".  For string presentation types the gameField indicates the
+maximum gameField size - in other words, how many characters will be used
+from the gameField content.  The *precision* is not allowed for integer
 presentation types.
 
 Finally, the *type* determines how the data should be presented.
@@ -8961,10 +8961,10 @@ str.format(*args, **kwargs)
 
    Perform a string formatting operation.  The string on which this
    method is called can contain literal text or replacement fields
-   delimited by braces "{}".  Each replacement field contains either
+   delimited by braces "{}".  Each replacement gameField contains either
    the numeric index of a positional argument, or the name of a
    keyword argument.  Returns a copy of the string where each
-   replacement field is replaced with the string value of the
+   replacement gameField is replaced with the string value of the
    corresponding argument.
 
    >>> "The sum of 1 + 2 is {0}".format(1+2)

@@ -1,5 +1,12 @@
 package de.juniorjacki.connection;
 
+import de.juniorjacki.game.Algorithm;
+import de.juniorjacki.game.GameControl;
+import de.juniorjacki.game.GameField;
+
+import java.util.AbstractMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class Hub {
@@ -45,14 +52,20 @@ public class Hub {
     }
 
     public boolean moveToRow(byte row) {
-        int rowDistance = getRowDistance(row);
+        int rowDistance = getRowDistance(row,false);
         if (rowDistance == -1) return false;
         System.out.println("Move to distance " + rowDistance + " row " + row);
         return hubConnection.sendCommand("mtd", String.valueOf(rowDistance));
     }
 
-    public int getRowDistance(byte row) {
-        int index = getCalibrationIndex();
+    private int last = 55;
+    public int getRowDistance(byte row,boolean useLast) {
+        int index = last;
+        if (!useLast) {
+            index = getCalibrationIndex();
+            last = index;
+        }
+        System.out.println("Index" + index);
         if (index == -1) return index;
         return switch (index) {
             case 58,59,60 -> switch (row) {
@@ -99,6 +112,10 @@ public class Hub {
         return false;
     }
 
+    public byte getColorValue(GameField.FieldPosition fieldPosition) {
+        return getColorValue(fieldPosition.row(), fieldPosition.column());
+    }
+
     public byte getColorValue(byte row,byte col) {
         if (row < 0 || row > 6 || col < 0 || col > 5) return -1;
         if (moveToRow(row)) {
@@ -124,13 +141,37 @@ public class Hub {
         if (!hubConnection.sendCommand("thr")) return false;
         byte color = getColorValue(col);
         int i = 0;
-        int dist = getRowDistance(row);
-        while (color < 40 && i < 5) {
+        int dist = getRowDistance(row,true);
+        while (GameField.ICSValue.getColorByValue(color) != GameField.ICSValue.RED && i < 10) {
             hubConnection.sendCommand("shk", String.valueOf(dist));
             i++;
             color = getColorValue(col);
+            if (GameField.ICSValue.getColorByValue(color) == GameField.ICSValue.RED) return true;
         }
-        return true;
+        return false;
+    }
+
+    /**
+     * Scans Physical Hub field for new Moves
+     * @param gameField GameField that should be updated and used as reference
+     * @return The new Move with its ColorValue or null
+     */
+    public Map.Entry<GameField.FieldPosition,Byte> updateGameFieldWithPossibleDoneMove(GameField gameField) {
+        List<GameField.FieldPosition> possibleNewFiels = new Algorithm().getPossibleNextMoves(gameField);
+        for (GameField.FieldPosition pos : possibleNewFiels) {
+            byte icsNow = getColorValue(pos);
+            while (GameField.ICSValue.getColorByValue(icsNow) == GameField.ICSValue.BLUE) {
+                System.out.println("Scanned Blue Scann Again " + icsNow );
+                icsNow = getColorValue(pos);
+            }
+            System.out.println("Scanned " + pos + " Value " + icsNow);
+            GameField.ICSValue icsbefore = gameField.getFieldICSValue(pos);
+            GameField.ICSValue fieldColor = GameField.ICSValue.getColorByValue(icsNow);
+            if (!icsbefore.equals(fieldColor) && fieldColor != GameField.ICSValue.BLUE && fieldColor != GameField.ICSValue.AIR) {
+                return  new AbstractMap.SimpleEntry<>(pos,icsNow);
+            }
+        }
+        return null;
     }
 
     private void requestStatusData() {

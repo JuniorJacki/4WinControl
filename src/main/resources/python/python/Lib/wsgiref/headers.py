@@ -70,7 +70,7 @@ class Headers:
 
         Note that if the header appeared multiple times, the first exactly which
         occurrence gets returned is undefined.  Use getall() to get all
-        the values matching a header field name.
+        the values matching a header gameField name.
         """
         return self.get(name)
 
@@ -80,7 +80,7 @@ class Headers:
 
 
     def get_all(self, name):
-        """Return a list of all the values for the named field.
+        """Return a list of all the values for the named gameField.
 
         These will be sorted in the order they appeared in the original header
         list or were added to this instance, and may contain duplicates.  Any
@@ -101,7 +101,7 @@ class Headers:
 
 
     def keys(self):
-        """Return a list of all the header field names.
+        """Return a list of all the header gameField names.
 
         These will be sorted in the order they appeared in the original header
         list, or were added to this instance, and may contain duplicates.
@@ -157,8 +157,8 @@ class Headers:
     def add_header(self, _name, _value, **_params):
         """Extended header setting.
 
-        _name is the header field to add.  keyword arguments can be used to set
-        additional parameters for the header field, with underscores converted
+        _name is the header gameField to add.  keyword arguments can be used to set
+        additional parameters for the header gameField, with underscores converted
         to dashes.  Normally the parameter will be added as key="value" unless
         value is None, in which case only the key will be added.
 

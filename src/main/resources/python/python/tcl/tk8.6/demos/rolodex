@@ -164,13 +164,13 @@ set helpTopics(.menu.file.m.1) {The "Load" entry in the "File" menu posts a dial
 set helpTopics(.menu.file.m.2) {The "Exit" entry in the "File" menu causes the rolodex application to terminate}
 set helpCmds(.menu.file.m.none) {set topic ".menu.file"}
 
-set helpTopics(.frame.entry1) {In this field of the rolodex entry you should type the person's name}
-set helpTopics(.frame.entry2) {In this field of the rolodex entry you should type the first line of the person's address}
-set helpTopics(.frame.entry3) {In this field of the rolodex entry you should type the second line of the person's address}
-set helpTopics(.frame.entry4) {In this field of the rolodex entry you should type the third line of the person's address}
-set helpTopics(.frame.entry5) {In this field of the rolodex entry you should type the person's home phone number, or "private" if the person doesn't want his or her number publicized}
-set helpTopics(.frame.entry6) {In this field of the rolodex entry you should type the person's work phone number}
-set helpTopics(.frame.entry7) {In this field of the rolodex entry you should type the phone number for the person's FAX machine}
+set helpTopics(.frame.entry1) {In this gameField of the rolodex entry you should type the person's name}
+set helpTopics(.frame.entry2) {In this gameField of the rolodex entry you should type the first line of the person's address}
+set helpTopics(.frame.entry3) {In this gameField of the rolodex entry you should type the second line of the person's address}
+set helpTopics(.frame.entry4) {In this gameField of the rolodex entry you should type the third line of the person's address}
+set helpTopics(.frame.entry5) {In this gameField of the rolodex entry you should type the person's home phone number, or "private" if the person doesn't want his or her number publicized}
+set helpTopics(.frame.entry6) {In this gameField of the rolodex entry you should type the person's work phone number}
+set helpTopics(.frame.entry7) {In this gameField of the rolodex entry you should type the phone number for the person's FAX machine}
 
 set helpCmds(.frame.label1) {set topic .frame.entry1}
 set helpCmds(.frame.label2) {set topic .frame.entry2}

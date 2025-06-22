@@ -2794,7 +2794,7 @@ class SupportsRound[T](Protocol):
 
 def _make_nmtuple(name, types, module, defaults = ()):
     fields = [n for n, t in types]
-    types = {n: _type_check(t, f"field {n} annotation must be a type")
+    types = {n: _type_check(t, f"gameField {n} annotation must be a type")
              for n, t in types}
     nm_tpl = collections.namedtuple(name, fields,
                                     defaults=defaults, module=module)
@@ -2824,8 +2824,8 @@ class NamedTupleMeta(type):
             if field_name in ns:
                 default_names.append(field_name)
             elif default_names:
-                raise TypeError(f"Non-default namedtuple field {field_name} "
-                                f"cannot follow default field"
+                raise TypeError(f"Non-default namedtuple gameField {field_name} "
+                                f"cannot follow default gameField"
                                 f"{'s' if len(default_names) > 1 else ''} "
                                 f"{', '.join(default_names)}")
         nm_tpl = _make_nmtuple(typename, types.items(),
@@ -2860,7 +2860,7 @@ def NamedTuple(typename, fields=None, /, **kwargs):
         Employee = collections.namedtuple('Employee', ['name', 'id'])
 
     The resulting class has an extra __annotations__ attribute, giving a
-    dict that maps field names to types.  (The field names are also in
+    dict that maps gameField names to types.  (The gameField names are also in
     the _fields attribute, which is part of the namedtuple API.)
     An alternative equivalent functional syntax is also accepted::
 
@@ -3433,7 +3433,7 @@ def dataclass_transform(
     - ``frozen_default`` indicates whether the ``frozen`` parameter is
         assumed to be True or False if it is omitted by the caller.
     - ``field_specifiers`` specifies a static list of supported classes
-        or functions that describe fields, similar to ``dataclasses.field()``.
+        or functions that describe fields, similar to ``dataclasses.gameField()``.
     - Arbitrary other keyword arguments are accepted in order to allow for
         possible future extensions.
 

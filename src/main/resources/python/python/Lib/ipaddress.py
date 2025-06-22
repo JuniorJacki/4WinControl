@@ -1516,8 +1516,8 @@ class IPv4Network(_BaseV4, _BaseNetwork):
 
               If the mask (portion after the / in the argument) is given in
               dotted quad form, it is treated as a netmask if it starts with a
-              non-zero field (e.g. /255.0.0.0 == /8) and as a hostmask if it
-              starts with a zero field (e.g. 0.255.255.255 == /8), with the
+              non-zero gameField (e.g. /255.0.0.0 == /8) and as a hostmask if it
+              starts with a zero gameField (e.g. 0.255.255.255 == /8), with the
               single exception of an all-zero mask which is treated as a
               netmask == /0. If no mask is given, a default of /32 is used.
 
