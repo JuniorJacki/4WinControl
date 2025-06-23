@@ -197,7 +197,13 @@ public class GameControl {
                         frame.setUserWinValue("-1");
                         frame.setOpponentWinValue("-1");
                         frame.setVisible(true); // Öffnet das Fenster
-                        //frame.setAllColumnButtonsEnabled(false);
+                        frame.setColumnButtonEnabled(0,false);
+                        frame.setColumnButtonEnabled(1,false);
+                        frame.setColumnButtonEnabled(2,false);
+                        frame.setColumnButtonEnabled(3,false);
+                        frame.setColumnButtonEnabled(4,false);
+                        frame.setColumnButtonEnabled(5,false);
+                        frame.setColumnButtonEnabled(6,false);
 
                         frame.setTextAreaContent("Spiel gestartet! \nDu bist Gelb \nDer Bot ist Rot");
                         frame.setOnColumnButtonClick(column -> {
@@ -219,20 +225,23 @@ public class GameControl {
                     Algorithm control = new Algorithm();
                     GameField.HistoryMove move = null;
                     String startText = "Spiel gestartet!\n";
+
+                    Map.Entry<GameField.FieldPosition, Byte> input = null;
                     while (control.isWin(gameField) == null) {
-                        frame.setTextAreaContent(startText + "Du bist dran\nLeg eine karte ein");
-                        startText = "";
-
-                        JOptionPane.showConfirmDialog(
-                                frame,
-                                "Hast du eine Karte eingelegt?",
-                                "Vier gewinnt",
-                                JOptionPane.DEFAULT_OPTION
-                        );
-                        Map.Entry<GameField.FieldPosition, Byte> input = currentHub.updateGameFieldWithPossibleDoneMove(gameField);
-
                         boolean scanOk = false;
                         while (!scanOk) {
+                            frame.setTextAreaContent(startText + "Du bist dran\nLeg eine karte ein");
+                            startText = "";
+
+                            JOptionPane.showConfirmDialog(
+                                    frame,
+                                    "Hast du eine Karte eingelegt?",
+                                    "Vier gewinnt",
+                                    JOptionPane.DEFAULT_OPTION
+                            );
+                            input = currentHub.updateGameFieldWithPossibleDoneMove(gameField);
+
+
                             while (input == null) {
                                 JOptionPane.showConfirmDialog(
                                         frame,
@@ -266,12 +275,13 @@ public class GameControl {
 
                         move = control.getHistoryMovePlayer(gameField, inputPosition, GameField.ICSValue.YELLOW);
                         if (analyseActive) legendGUI.addHistoryMove(move);
-                        gameField.updateField(inputPosition, GameField.ICSValue.YELLOW.getMin());
+                        gameField.updateField(inputPosition, GameField.ICSValue.getColorByValue(input.getValue()) == GameField.ICSValue.RED ? GameField.ICSValue.YELLOW.getMin() : input.getValue());
                         frame.setFieldColor(inputPosition.column(), inputPosition.row(), GameField.ICSValue.YELLOW);
                         frame.setUserWinValue(String.valueOf(move.neededMovesToWinAfterCurrent()));
                         frame.setOpponentWinValue(String.valueOf(move.neededMovesToWinAfterOpponent()));
 
                         if (control.isWin(gameField) != null) break;
+                        frame.setTextAreaContent("Der Bot ist dran\nEr legt jetzt eine karte ein");
                         move = control.generateHistoryMoveBot(gameField, GameField.ICSValue.RED);
                         if (analyseActive) legendGUI.addHistoryMove(move);
                         GameField.FieldPosition botposition = move.currentMove();

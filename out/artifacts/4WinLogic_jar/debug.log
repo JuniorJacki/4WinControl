@@ -5,15 +5,6 @@ Resource URL for connector.py: jar:file:/D:/B%c3%bcro/Schule/MPG/Q1/IFPK/4WinLog
 Resource URL for python/python/python.exe: jar:file:/D:/B%c3%bcro/Schule/MPG/Q1/IFPK/4WinLogic/out/artifacts/4WinLogic_jar/4WinLogic.jar!/python/python/python.exe
 Extracting Python environment to: D:\Büro\Schule\MPG\Q1\IFPK\4WinLogic\out\artifacts\4WinLogic_jar\python_env
 Initialisiere LoadingScreen... [Thread: AWT-EventQueue-0]
-Verbindung nicht möglich: cnf
-Hub: Hub 10has been Disconnected!
-1
-Starting Single Player Game on Hub Hub 10
-Setting up Python environment...
-Resource URL for connector.py: jar:file:/D:/B%c3%bcro/Schule/MPG/Q1/IFPK/4WinLogic/out/artifacts/4WinLogic_jar/4WinLogic.jar!/connector.py
-Resource URL for python/python/python.exe: jar:file:/D:/B%c3%bcro/Schule/MPG/Q1/IFPK/4WinLogic/out/artifacts/4WinLogic_jar/4WinLogic.jar!/python/python/python.exe
-Extracting Python environment to: D:\Büro\Schule\MPG\Q1\IFPK\4WinLogic\out\artifacts\4WinLogic_jar\python_env
-Initialisiere LoadingScreen... [Thread: AWT-EventQueue-0]
 Verbindung hergestellt
 Send initiation Command
 Send response refresh Command
@@ -22,11 +13,39 @@ Listenner Thread started
 Sending: res::
 Did not receive a request Response Sending Additional Data request
 Sending: dat::
-HUB: ret:res:53
-Hub did not respond to Cmd after 514 ms
+HUB: ret:res:56
+Hub did not respond to Cmd after 507 ms
 Sending: dat::
-Received Command Response: ret:res:53
-Index53
+Received Command Response: ret:res:56
+Index56
+Move to distance 92 row 0
+Sending: mtd:92:
+Did not receive a request Response Sending Additional Data request
+Sending: dat::
+Hub did not respond to Cmd after 506 ms
+HUB: ret:mtd:92
+Sending: dat::
+Received Command Response: ret:mtd:92
+Sending: col:5:
+Did not receive a request Response Sending Additional Data request
+Sending: dat::
+Hub did not respond to Cmd after 500 ms
+Sending: dat::
+Hub did not respond to Cmd after 1007 ms
+Sending: dat::
+Hub did not respond to Cmd after 1520 ms
+HUB: ret:col:32
+Sending: dat::
+Received Command Response: ret:col:32
+Scanned Blue Scann Again 32
+Sending: res::
+Did not receive a request Response Sending Additional Data request
+Sending: dat::
+Hub did not respond to Cmd after 500 ms
+HUB: ret:res:57
+Sending: dat::
+Received Command Response: ret:res:57
+Index57
 Move to distance 92 row 0
 Sending: mtd:92:
 Did not receive a request Response Sending Additional Data request
@@ -40,9 +59,9 @@ Did not receive a request Response Sending Additional Data request
 Sending: dat::
 Hub did not respond to Cmd after 507 ms
 Sending: dat::
-Hub did not respond to Cmd after 1014 ms
+Hub did not respond to Cmd after 1008 ms
 Sending: dat::
-Hub did not respond to Cmd after 1521 ms
+Hub did not respond to Cmd after 1509 ms
 HUB: ret:col:31
 Sending: dat::
 Received Command Response: ret:col:31
@@ -50,11 +69,39 @@ Scanned Blue Scann Again 31
 Sending: res::
 Did not receive a request Response Sending Additional Data request
 Sending: dat::
-Hub did not respond to Cmd after 500 ms
-HUB: ret:res:53
+Hub did not respond to Cmd after 507 ms
+HUB: ret:res:57
 Sending: dat::
-Received Command Response: ret:res:53
-Index53
+Received Command Response: ret:res:57
+Index57
+Move to distance 92 row 0
+Sending: mtd:92:
+Did not receive a request Response Sending Additional Data request
+Sending: dat::
+Hub did not respond to Cmd after 501 ms
+HUB: ret:mtd:92
+Sending: dat::
+Received Command Response: ret:mtd:92
+Sending: col:5:
+Did not receive a request Response Sending Additional Data request
+Sending: dat::
+Hub did not respond to Cmd after 506 ms
+Sending: dat::
+Hub did not respond to Cmd after 1007 ms
+Sending: dat::
+Hub did not respond to Cmd after 1513 ms
+HUB: ret:col:55
+Sending: dat::
+Received Command Response: ret:col:55
+Scanned FieldPosition[row=0, column=5] Value 55
+Sending: res::
+Did not receive a request Response Sending Additional Data request
+Sending: dat::
+Hub did not respond to Cmd after 501 ms
+HUB: ret:res:57
+Sending: dat::
+Received Command Response: ret:res:57
+Index57
 Move to distance 92 row 0
 Sending: mtd:92:
 Did not receive a request Response Sending Additional Data request
@@ -63,20 +110,110 @@ Hub did not respond to Cmd after 507 ms
 HUB: ret:mtd:92
 Sending: dat::
 Received Command Response: ret:mtd:92
-Sending: col:5:
+Sending: thr::
 Did not receive a request Response Sending Additional Data request
 Sending: dat::
 Hub did not respond to Cmd after 501 ms
 Sending: dat::
-Hub did not respond to Cmd after 1007 ms
+Hub did not respond to Cmd after 1004 ms
 Sending: dat::
-Hub did not respond to Cmd after 1513 ms
-HUB: ret:col:48
+Hub did not respond to Cmd after 1507 ms
+HUB: The program was sto
+HUB: pped (SystemExit).
+HUB: 
+HUB: 
+HUB: 
 Sending: dat::
-Received Command Response: ret:col:48
-Scanned FieldPosition[row=0, column=5] Value 48
-Sending: res::
-Did not receive a request Response Sending Additional Data request
+Hub did not respond to Cmd after 2015 ms
 Sending: dat::
-Hub did not respond to Cmd after 514 ms
+Hub did not respond to Cmd after 2522 ms
+Sending: dat::
+Hub did not respond to Cmd after 3028 ms
+Sending: dat::
+Hub did not respond to Cmd after 3529 ms
+Sending: dat::
+Hub did not respond to Cmd after 4043 ms
+Sending: dat::
+Hub did not respond to Cmd after 4549 ms
+Sending: dat::
+Hub did not respond to Cmd after 5056 ms
+Sending: dat::
+Hub did not respond to Cmd after 5557 ms
+Sending: dat::
+Hub did not respond to Cmd after 6063 ms
+Sending: dat::
+Hub did not respond to Cmd after 6570 ms
+Sending: dat::
+Hub did not respond to Cmd after 7085 ms
+Sending: dat::
+Hub did not respond to Cmd after 7592 ms
+Sending: dat::
+Hub did not respond to Cmd after 8106 ms
+Sending: dat::
+Hub did not respond to Cmd after 8617 ms
+Sending: dat::
+Hub did not respond to Cmd after 9118 ms
+Sending: dat::
+Hub did not respond to Cmd after 9629 ms
+Sending: dat::
+Hub did not respond to Cmd after 10141 ms
+Sending: dat::
+Hub did not respond to Cmd after 10655 ms
+Sending: dat::
+Hub did not respond to Cmd after 11160 ms
+Sending: dat::
+Hub did not respond to Cmd after 11669 ms
+Sending: dat::
+Hub did not respond to Cmd after 12178 ms
+Sending: dat::
+Hub did not respond to Cmd after 12689 ms
+Sending: dat::
+Hub did not respond to Cmd after 13190 ms
+Sending: dat::
+Hub did not respond to Cmd after 13705 ms
+Sending: dat::
+Hub did not respond to Cmd after 14211 ms
+Sending: dat::
+Hub did not respond to Cmd after 14714 ms
+Sending: dat::
+Hub did not respond to Cmd after 15227 ms
+Sending: dat::
+Hub did not respond to Cmd after 15737 ms
+Sending: dat::
+Hub did not respond to Cmd after 16247 ms
+Sending: dat::
+Hub did not respond to Cmd after 16753 ms
+Sending: dat::
+Hub did not respond to Cmd after 17266 ms
+Sending: dat::
+Hub did not respond to Cmd after 17771 ms
+Sending: dat::
+Hub did not respond to Cmd after 18276 ms
+Sending: dat::
+Hub did not respond to Cmd after 18778 ms
+Sending: dat::
+Hub did not respond to Cmd after 19278 ms
+Sending: dat::
+Hub did not respond to Cmd after 19780 ms
+Sending: dat::
+Hub did not respond to Cmd after 20285 ms
+Hub did not respond to Cmd after 20285 ms
+Hub seems to be Disconnected
+Hub Disconnected
 Hub: Hub 10has been Disconnected!
+Received Command Response: null
+Hub Disconnected
+Hub: Hub 10has been Disconnected!
+Hub Disconnected
+Hub: Hub 10has been Disconnected!
+Hub Disconnected
+Hub: Hub 10has been Disconnected!
+java.util.concurrent.TimeoutException
+	at java.base/java.util.concurrent.CompletableFuture.timedGet(CompletableFuture.java:1960)
+	at java.base/java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2095)
+	at de.juniorjacki.connection.Connection.sendRequest(Connection.java:324)
+	at de.juniorjacki.connection.Hub.getColorValue(Hub.java:132)
+	at de.juniorjacki.connection.Hub.throwPlate(Hub.java:142)
+	at de.juniorjacki.game.GameControl.lambda$startSinglePlayerGameONHUB$11(GameControl.java:282)
+	at java.base/java.lang.Thread.run(Thread.java:1570)
+Index57
