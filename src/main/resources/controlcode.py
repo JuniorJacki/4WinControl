@@ -1,3 +1,5 @@
+# Copyright (c) JuniorJacki 2025
+
 from pybricks.pupdevices import Motor
 from pybricks.parameters import Port
 from pybricks.tools import wait
