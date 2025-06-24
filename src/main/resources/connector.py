@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2020 Henrik Blidh
 # Copyright (c) 2022-2023 The Pybricks Authors
+# Copyright (c) 2025 JuniorJacki
 
 """
-Example program for computer-to-hub communication, modified to accept commands from stdin.
+Example program for computer-to-hub communication, modified to accept commands with args from stdin and receive Commands.
 Requires Pybricks firmware >= 3.3.0.
 """
 
