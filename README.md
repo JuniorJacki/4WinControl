@@ -8,5 +8,8 @@ Connect Four developed in Java by JuniorJacki
 - Connectable to a Lego Hub to play 4 Connect Physical against a self-built bot controlled by the algorithm
 - Multiplayer
 
+## Requirements
+- Java 17 or newer
+
 ## Demo Video
 [![4WinControl Demo](https://img.youtube.com/vi/uVDHaDGr0Pw/0.jpg)](https://youtu.be/uVDHaDGr0Pw "4WinControl Demo Video")
