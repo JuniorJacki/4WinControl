@@ -9,7 +9,7 @@ Connect Four developed in Java by JuniorJacki
 - Multiplayer
 
 ## Requirements
-- Java 17 or newer
+- Java 17+
 
 ## Demo Video
 [![4WinControl Demo](https://img.youtube.com/vi/uVDHaDGr0Pw/0.jpg)](https://youtu.be/uVDHaDGr0Pw "4WinControl Demo Video")
